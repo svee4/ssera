@@ -1,0 +1,10 @@
+{
+	"Apikey": "<>",
+	"Timeout": 30,
+	"SqliteFilename": "sqlite.db",
+	"BackupSqliteFilename": "backup.sqlite.db",
+	"ConnectionStrings": {
+		"Sqlite": "Filename=sqlite.db",
+		"BackupSqlite": "Filename=backup.sqlite.db"
+	}
+}
