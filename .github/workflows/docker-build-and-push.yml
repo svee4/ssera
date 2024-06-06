@@ -67,6 +67,6 @@ jobs:
         uses: docker/build-push-action@v5.3.0
         with:
           context: .
-          file: ./src/lsfarchivehelper.api/Dockerfile
+          file: ./src/LsfArchiveHelper.Api/Dockerfile
           push: true
-          tags: svee4/LsfArchiveHelper.Api:latest
+          tags: svee4/lsfarchiveHelper.api:latest
