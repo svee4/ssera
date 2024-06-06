@@ -1,0 +1,74 @@
+name: Docker build and push
+
+on:
+  push:
+    branches: [ "release" ]
+  pull_request:
+    branches: [ "release" ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  client:
+    name: Client build and push
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+      
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@3.2.0
+        with:
+          registry: ${{ env.registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@5.3.0
+        with:
+          context: .
+          file: ./src/LsfArchiveHelper.Client/Dockerfile
+          push: true
+          tags: svee4/LsfArchiveHelper.Client:latest
+          build-args: |
+            BUILDCONST=ApiDomain=https://api.ssera.estral.fi
+
+  api:
+    name: Api build and push
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+      
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@3.2.0
+        with:
+          registry: ${{ env.registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@5.3.0
+        with:
+          context: .
+          file: ./src/LsfArchiveHelper.Api/Dockerfile
+          push: true
+          tags: svee4/LsfArchiveHelper.Api:latest
