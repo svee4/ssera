@@ -3,19 +3,16 @@ ARG BUILDCONST
 
 WORKDIR /app
 
-COPY package*.json .
-
 ENV NODE_ENV=production
-
-RUN npm ci --omit=dev
 
 COPY . .
 
 RUN node buildconst.js $BUILDCONST
 RUN rm buildconst.js
 
+RUN npm ci --omit=dev
 RUN npm run build
-RUN npm prune --production
+RUN npm prune
 
 FROM node:21 AS run
 
