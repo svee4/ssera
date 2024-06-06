@@ -38,7 +38,7 @@ jobs:
           push: true
           tags: svee4/lsfarchivehelper.client:latest
           build-args: |
-            BUILDCONST=ApiDomain=https://api.ssera.estral.fi
+            BUILDCONST=ApiDomain='https://api.ssera.estral.fi'
 
   api:
     name: Api build and push
@@ -68,4 +68,4 @@ jobs:
           context: /src/LsfArchiveHelper.Api
           file: ./src/LsfArchiveHelper.Api/Dockerfile
           push: true
-          tags: svee4/lsfarchiveHelper.api:latest
+          tags: svee4/lsfarchivehelper.api:latest
