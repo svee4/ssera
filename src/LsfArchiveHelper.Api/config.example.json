@@ -1,6 +1,7 @@
 {
+	"CorsAllowOrigin": "myfrontend.com",
 	"Apikey": "<>",
-	"Timeout": 30,
+	"WorkerDelay": 30 ,
 	"SqliteFilename": "sqlite.db",
 	"BackupSqliteFilename": "backup.sqlite.db",
 	"ConnectionStrings": {

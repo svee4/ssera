@@ -7,12 +7,17 @@ using LsfArchiveHelper.Api.Infra.ProblemDetailsHandler;
 using LsfArchiveHelper.Api.Worker;
 using LsfArchiveHelper.Api.Infra.Startup;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
 
 [assembly: Behaviors(typeof(ValidationBehavior<,>))] 
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddJsonFile("config.json", optional: false);
+if (builder.Environment.IsDevelopment())
+{
+	// environment variables in production 
+	builder.Configuration.AddJsonFile("config.json", optional: false);
+}
 
 var sqliteConnectionString = builder.Configuration.GetRequiredValue("ConnectionStrings:Sqlite");
 
@@ -48,8 +53,12 @@ else
 
 app.UseHttpsRedirection();
 
-app.UseStaticFiles();
-
 app.MapLsfArchiveHelperApiEndpoints();
 
-app.Run();
+await using (var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateAsyncScope())
+{
+	var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+	await dbContext.Database.MigrateAsync();
+}
+
+await app.RunAsync();

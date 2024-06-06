@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { HistoryApiHelper } from "$lib/HistoryApiHelper";
-	
-	export const ssr = false;
 
-	let stream: Promise<HistoryApiHelper.ApiResponse> = new Promise(() => {});
+	let stream: Promise<HistoryApiHelper.ApiResponse> = new Promise(() => {
+	});
 
 	function fetchData() {
 		stream = fetch(HistoryApiHelper.ApiRoute).then(response => response.json());

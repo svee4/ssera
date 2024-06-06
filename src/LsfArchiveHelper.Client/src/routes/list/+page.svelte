@@ -1,10 +1,8 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { EventsApiHelper } from "$lib/EventsApiHelper";
-	import { queryParam, queryParameters } from "sveltekit-search-params";
+	import { queryParam } from "sveltekit-search-params";
 	import { get } from "svelte/store";
-
-	export const ssr = false;
 
 	let response: Promise<EventsApiHelper.ApiResponse> = new Promise(() => {
 	});
@@ -101,11 +99,11 @@
 	let filtersAreDirty = false;
 	let prevQueryParams = getNewPrevQueryParams();
 
-	$: filtersAreDirty = 
-			   $sort !== prevQueryParams.sort
-			|| $orderBy !== prevQueryParams.orderBy
-			|| stringifyAllSelectedEventTypes($selectedEventTypes!) !== prevQueryParams.selectedEventTypes
-			|| $search !== prevQueryParams.search;
+	$: filtersAreDirty =
+		$sort !== prevQueryParams.sort
+		|| $orderBy !== prevQueryParams.orderBy
+		|| stringifyAllSelectedEventTypes($selectedEventTypes!) !== prevQueryParams.selectedEventTypes
+		|| $search !== prevQueryParams.search;
 
 	function getNewPrevQueryParams() {
 		return {

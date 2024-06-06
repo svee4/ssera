@@ -10,6 +10,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFiles", "{ACD03CB3-655A-4834-ACFB-8402E81C1D1A}"
 	ProjectSection(SolutionItems) = preProject
 		..\README.md = ..\README.md
+		..\.dockerignore = ..\.dockerignore
+		..\.gitignore = ..\.gitignore
 	EndProjectSection
 EndProject
 Global
