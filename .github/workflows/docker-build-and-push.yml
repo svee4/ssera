@@ -34,7 +34,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5.5.1
         with:
-          images: ${{ env.NAME_BASE }}.client
+          images: ${{ env.REGISTRY }}/${{ env.NAME_BASE }}.client
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5.3.0
