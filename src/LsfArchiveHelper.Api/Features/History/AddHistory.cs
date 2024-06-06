@@ -1,23 +1,21 @@
 using Immediate.Handlers.Shared;
+using Immediate.Validations.Shared;
 using LsfArchiveHelper.Api.Database;
 
 namespace LsfArchiveHelper.Api.Features.History;
 
-
 [Handler]
 public sealed partial class AddHistory
 {
-
 	public sealed record Command
 	{
-		[Immediate.Validations.Shared.GreaterThanOrEqual(0)]
-		public required int TotalEvents { get; set; }
-		
+		[GreaterThanOrEqual(0)] public required int TotalEvents { get; set; }
+
 		public required TimeSpan TimeTaken { get; set; }
-		
+
 		public string? Message { get; set; }
 	}
-	
+
 	/// <summary>
 	/// Adds a history entry to the database. Returns true if adding was successful, otherwise false
 	/// </summary>

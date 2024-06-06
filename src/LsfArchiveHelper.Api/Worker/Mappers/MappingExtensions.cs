@@ -5,7 +5,6 @@ namespace LsfArchiveHelper.Api.Worker.Mappers;
 
 public static class MappingExtensions
 {
-	
 	/// <summary>
 	/// Normalized empty or whitespace strings to null
 	/// </summary>

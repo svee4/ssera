@@ -23,7 +23,7 @@ public sealed class WorkerHistory
 		ArgumentOutOfRangeException.ThrowIfNegative(totalEvents);
 		return new WorkerHistory
 		{
-			CreatedUtc = DateTime.UtcNow,
+			CreatedUtc = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc),
 			TotalEvents = totalEvents,
 			TimeTaken = timeTaken,
 			Message = message

@@ -20,13 +20,13 @@ public sealed partial class GetHistory
 		await dbContext.WorkerHistory
 			.OrderByDescending(m => m.CreatedUtc)
 			.Select(m => new HistoryModel(
-				m.CreatedUtc.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture), 
+				m.CreatedUtc, 
 				m.TotalEvents,
 				m.TimeTaken.ToString("hh':'mm':'ss", CultureInfo.InvariantCulture),
 				m.Message))
 			.Take(50)
 			.ToListAsync(token);
 
-	// part 2 im not doing date formatting in javascript
-	public sealed record HistoryModel(string DateUtc, int TotalEvents, string TimeTaken, string? Message);
+	// TODO figure out home timespans work in javascript
+	public sealed record HistoryModel(DateTime Date, int TotalEvents, string TimeTaken, string? Message);
 }

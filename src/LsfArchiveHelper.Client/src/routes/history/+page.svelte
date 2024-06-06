@@ -13,6 +13,10 @@
 	onMount(() => fetchData());
 </script>
 
+<svelte:head>
+	<title>History</title>
+</svelte:head>
+
 <p>
 	The worker runs data import and aggregation on a schedule
 </p>
@@ -26,7 +30,7 @@
 			<thead>
 			<tr>
 				<th scope="col">
-					<span>Date (UTC)</span>
+					<span>Date</span>
 				</th>
 				<th scope="col">
 					<span>Event count</span>
@@ -43,7 +47,7 @@
 			{#each events as event}
 				<tr>
 					<td class="col-date">
-						<span>{event.dateUtc}</span>
+						<span>{new Date(event.date).toLocaleString()}</span>
 					</td>
 					<td class="col-eventcount">
 						<span>{event.totalEvents}</span>

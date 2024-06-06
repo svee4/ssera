@@ -6,12 +6,17 @@ export module EventsApiHelper {
 	
 	export const ApiRoute = `${ApiHelper.ApiDomain}/api/events` as const;
 
-	export type ApiResponse = {
+	export type ApiEvent = {
 		dateUtc: string,
 		type: keyof typeof AllEventTypes,
 		title?: string,
 		link?: string
-	}[];
+	};
+	
+	export type ApiResponse = {
+		events: ApiEvent[],
+		lastUpdate?: string,
+	}
 
 	export type ApiQuery = {
 		orderBy?: OrderByType,
@@ -29,7 +34,7 @@ export module EventsApiHelper {
 		"Variety": "Variety",
 		"Reality": "Reality",
 		"CF": "CF",
-		"Misc": "Misc",
+		"Misc": "Miscellaneous",
 		"MubankPresident": "Mubank President",
 		"WeverseLive": "Weverse Live",
 	} as const;
@@ -50,5 +55,4 @@ export module EventsApiHelper {
 	} as const;
 
 	export type SortType = typeof AllSortTypes[keyof typeof AllSortTypes];
-
 }

@@ -1,12 +1,29 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { EventsApiHelper } from "$lib/EventsApiHelper";
-	import { queryParam, ssp } from "sveltekit-search-params";
+	import { queryParam, queryParameters } from "sveltekit-search-params";
+	import { get } from "svelte/store";
 
 	export const ssr = false;
 
-	let stream: Promise<EventsApiHelper.ApiResponse> = new Promise(() => {
+	let response: Promise<EventsApiHelper.ApiResponse> = new Promise(() => {
 	});
+
+	// manually synced from spreadsheet, colors are mixed with white for readability
+	// TODO: manually lighten colors to look better and readable
+	const TypeColors = {
+		"TeasersMV": "#ff00ff",
+		"Performance": "#ff9900",
+		"MusicShows": "#d0e0e3",
+		"BehindTheScenes": "#0000ff",
+		"Interview": "#00ff00",
+		"Variety": "#9900ff",
+		"Reality": "#ffff00",
+		"CF": "#ffd966",
+		"Misc": "#4a86e8",
+		"MubankPresident": "#c27ba0",
+		"WeverseLive": "#0be6c1",
+	} as const;
 
 	const queryParamOptions = {
 		showDefaults: false,
@@ -38,19 +55,19 @@
 	const possibleEventTypes = Object.keys(EventsApiHelper.AllEventTypes);
 
 	const selectedEventTypes = queryParam<Record<string, boolean>>("eventTypes", {
-		encode: value => Object.entries(value).filter(([_, b]) => b).map(([k]) => k).join(","),
+		encode: value => Object.entries(value).filter(([_, b]) => b).map(([k]) => k).join(",") || undefined,
 		decode: value => {
 			const base = possibleEventTypes.reduce((prev, cur) => {
 				prev[cur] = false;
 				return prev;
 			}, {} as Record<string, boolean>);
-			
+
 			if (value === null) return base;
 
 			value.split(",")
 				.filter(key => possibleEventTypes.includes(key))
 				.forEach(key => base[key] = true);
-			
+
 			return base;
 		},
 		defaultValue: possibleEventTypes.reduce((prev, cur) => {
@@ -62,6 +79,7 @@
 	const search = queryParam("search", undefined, queryParamOptions);
 
 	function fetchData() {
+
 		const params = new URLSearchParams();
 		params.append("orderBy", $orderBy!);
 		params.append("sort", $sort!);
@@ -74,11 +92,43 @@
 			params.append("search", $search!);
 		}
 
-		stream = fetch(EventsApiHelper.ApiRoute + "?" + params.toString()).then(response => response.json());
+		prevQueryParams = getNewPrevQueryParams();
+		response = fetch(EventsApiHelper.ApiRoute + "?" + params.toString()).then(response => response.json());
+		filtersAreDirty = false;
+	}
+
+	// tracks if filters are not applied to the displayed list
+	let filtersAreDirty = false;
+	let prevQueryParams = getNewPrevQueryParams();
+
+	$: filtersAreDirty = 
+			   $sort !== prevQueryParams.sort
+			|| $orderBy !== prevQueryParams.orderBy
+			|| stringifyAllSelectedEventTypes($selectedEventTypes!) !== prevQueryParams.selectedEventTypes
+			|| $search !== prevQueryParams.search;
+
+	function getNewPrevQueryParams() {
+		return {
+			sort: get(sort),
+			orderBy: get(orderBy),
+			selectedEventTypes: stringifyAllSelectedEventTypes(get(selectedEventTypes)!),
+			search: get(search),
+		};
+	}
+
+	function stringifyAllSelectedEventTypes(selectedEventTypes: Record<string, boolean>) {
+		return Object.entries(selectedEventTypes)
+			.toSorted((a, b) => a[0].localeCompare(b[0])) // sort by key to keep order
+			.map(obj => obj[1] ? 1 : 0)
+			.join("");
 	}
 
 	onMount(() => fetchData());
 </script>
+
+<svelte:head>
+	<title>List</title>
+</svelte:head>
 
 <form id="filters-container" on:submit|preventDefault={fetchData}>
 	<h3>Filter</h3>
@@ -106,8 +156,12 @@
 			<fieldset id="filter-fieldset">
 				<legend>Event type</legend>
 				{#each Object.entries(EventsApiHelper.AllEventTypes) as [key, name] }
-					<input style="margin: 2px;" id="eventtype-{key}" type="checkbox"
-						   bind:checked={$selectedEventTypes[key]} />
+					<input
+						style="margin: 2px;"
+						style:accent-color={TypeColors[key]}
+						id="eventtype-{key}"
+						type="checkbox"
+						bind:checked={$selectedEventTypes[key]} />
 					<label style="margin: 2px;" for="eventtype-{key}">{name}</label>
 				{/each}
 			</fieldset>
@@ -118,19 +172,25 @@
 		</div>
 		<div class="filter-item">
 			<div>&nbsp;</div>
-			<button id="apply">Apply</button>
+			<button id="apply" style="color: black" style:border-color={filtersAreDirty ? "blue" : "" }>Apply</button>
 		</div>
 	</div>
 </form>
 
-<article id="results-container">
+<section id="results-container">
 	<h3>Results</h3>
-	{#await stream}
+	{#await response}
 		<p>Loading...</p>
-	{:then events}
-		<table>
+	{:then data}
+		{#if data.lastUpdate}
+			<p>Last update: {new Date(data.lastUpdate).toLocaleString()}</p>
+		{:else}
+			<p>Last update: {"<"}no data{">"}</p>
+		{/if}
+		<table style="color: black">
 			<thead>
 			<tr>
+				<th scope="col">#</th>
 				<th scope="col">
 					<span>Date</span>
 				</th>
@@ -146,13 +206,16 @@
 			</tr>
 			</thead>
 			<tbody>
-			{#each events as event}
-				<tr>
+			{#each data.events as event, i}
+				<tr id={"row-" + i} style="background: color-mix(in srgb, {TypeColors[event.type]}, white 80%)">
+					<td class="col-number">{i}</td>
 					<td class="col-date">
 						<span>{event.dateUtc}</span>
 					</td>
 					<td class="col-type">
-						<span>{EventsApiHelper.AllEventTypes[event.type]}</span>
+						<span>
+							{EventsApiHelper.AllEventTypes[event.type]}
+						</span>
 					</td>
 					<td class="col-title">
 						<span>{event.title ?? ""}</span>
@@ -171,7 +234,7 @@
 	{:catch error}
 		<p>Error loading results: {error.message}</p>
 	{/await}
-</article>
+</section>
 
 
 <style>

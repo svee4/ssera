@@ -2,6 +2,7 @@ using System.Globalization;
 using Google.Apis.Services;
 using Google.Apis.Util;
 using LsfArchiveHelper.Api.Database;
+using LsfArchiveHelper.Api.Features.Events;
 using LsfArchiveHelper.Api.Features.History;
 using LsfArchiveHelper.Api.Worker.Mappers;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +27,7 @@ public sealed class Worker(
 	public Task StartAsync(CancellationToken cancellationToken)
 	{
 		_stoppingSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-		
+
 		_delay = 1000 * int.Parse(
 			_configuration["WorkerDelay"] ?? throw new InvalidOperationException("No timeout configured"),
 			CultureInfo.InvariantCulture);
@@ -68,7 +69,7 @@ public sealed class Worker(
 				await _stoppingSource.CancelAsync();
 				return;
 			}
-			
+
 			await Task.Delay(_delay, token);
 		}
 	}
@@ -77,7 +78,7 @@ public sealed class Worker(
 	{
 		_logger.LogInformation("Starting task");
 		if (token.IsCancellationRequested) return;
-		
+
 		var startTime = DateTime.Now;
 
 		using var service =
@@ -86,13 +87,10 @@ public sealed class Worker(
 
 		var request = service.Spreadsheets.Get(LeSserafimArchiveSpreadsheetId);
 		var spreadsheet = await request.ExecuteAsync(token);
-		
+
 		_logger.LogInformation("Received initial sheet");
 
-		// not concatenating these as ienumerables because
-		// 1. they need to be sorted either way
-		// 2. im scared of the quadratic problem that i dont understand
-		List<Database.Event> entries = []; // using db model directly because its faster
+		List<Database.Event> entries = []; // using database model directly i know
 
 		foreach (var sheet in spreadsheet.Sheets)
 		{
@@ -127,7 +125,7 @@ public sealed class Worker(
 			entries.AddRange(
 				knownSheet.Mapper
 					.ParseEvents(sheetData)
-					.Select(entry => Database.Event.CreateNew(entry.Date, type, entry.Title, entry.Link)));
+					.Select(entry => Database.Event.CreateNew(DateTime.SpecifyKind(entry.Date, DateTimeKind.Utc), type, entry.Title, entry.Link)));
 
 			var addedRowCount = entries.Count - countBefore;
 			_logger.LogInformation("Successfully parsed sheet {SheetName} for a total of {RowCount} rows", sheetName,
@@ -159,10 +157,10 @@ public sealed class Worker(
 			try
 			{
 				_logger.LogInformation("Clearing database");
-				await dbContext.Entries.ExecuteDeleteAsync(token);
+				await dbContext.Events.ExecuteDeleteAsync(token);
 
 				_logger.LogInformation("Saving entries to database");
-				await dbContext.Entries.AddRangeAsync(entries, token);
+				await dbContext.Events.AddRangeAsync(entries, token);
 				await dbContext.SaveChangesAsync(token);
 				await transaction.CommitAsync(token);
 				success = true;
@@ -178,7 +176,7 @@ public sealed class Worker(
 		var timeTaken = endTime - startTime;
 
 		var addHistoryHandler = scope.ServiceProvider.GetRequiredService<AddHistory.Handler>();
-		
+
 		if (success)
 		{
 			_logger.LogInformation("Successfully completed task");

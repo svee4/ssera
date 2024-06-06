@@ -5,7 +5,7 @@ export module HistoryApiHelper {
 	export const ApiRoute = `${ApiHelper.ApiDomain}/api/history` as const;
 
 	export type ApiResponse = {
-		dateUtc: string,
+		date: string,
 		totalEvents: number,
 		timeTaken: string,
 		message?: string

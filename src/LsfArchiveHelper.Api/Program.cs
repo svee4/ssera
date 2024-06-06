@@ -1,10 +1,12 @@
-using System.Text.Json.Serialization;
 using Immediate.Handlers.Shared;
 using Immediate.Validations.Shared;
 using LsfArchiveHelper.Api;
 using LsfArchiveHelper.Api.Database;
+using LsfArchiveHelper.Api.Infra.Configuration;
 using LsfArchiveHelper.Api.Infra.ProblemDetailsHandler;
 using LsfArchiveHelper.Api.Worker;
+using LsfArchiveHelper.Api.Infra.Startup;
+using Microsoft.AspNetCore.HttpOverrides;
 
 [assembly: Behaviors(typeof(ValidationBehavior<,>))] 
 
@@ -12,35 +14,36 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddJsonFile("config.json", optional: false);
 
-var sqliteConnectionString = builder.Configuration["ConnectionStrings:Sqlite"] ??
-                             throw new InvalidOperationException("Sqlite connection string not configured");
+var sqliteConnectionString = builder.Configuration.GetRequiredValue("ConnectionStrings:Sqlite");
 
 builder.Services.AddSqlite<AppDbContext>(sqliteConnectionString);
 
 builder.Services.AddHandlers();
 builder.Services.AddBehaviors();
+
 builder.Services.AddProblemDetailsHandler();
+builder.Services.AddCors();
+builder.Services.Configure<ForwardedHeadersOptions>(options => 
+	options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
 
 builder.Services.AddHostedService<Worker>();
 
-builder.Services.AddCors();
-
 builder.Services.AddSwagger();
 
-// builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(opt => 
-// 	opt.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {
 	app.UseSwagger();
-	app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+	app.UseCors(options => options.AllowAnyOrigin());
 }
 else
 {
-	app.UseExceptionHandler("/Error", createScopeForErrors: true);
+	app.UseForwardedHeaders();
 	app.UseHsts();
+	app.UseCors(options => options.WithOrigins(app.Configuration.GetRequiredValue("CorsAllowOrigin")));
 }
 
 app.UseHttpsRedirection();
