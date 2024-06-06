@@ -31,10 +31,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
-        id: push
-        uses: docker/build-push-action@v5.3.0
+      - uses: docker/build-push-action@v5.3.0
         with:
-          context: .
+          context: ./src/LsfArchiveHelper.Client
           file: ./src/LsfArchiveHelper.Client/Dockerfile
           push: true
           tags: svee4/lsfarchivehelper.client:latest
@@ -66,7 +65,7 @@ jobs:
         id: push
         uses: docker/build-push-action@v5.3.0
         with:
-          context: .
+          context: /src/LsfArchiveHelper.Api
           file: ./src/LsfArchiveHelper.Api/Dockerfile
           push: true
           tags: svee4/lsfarchiveHelper.api:latest
