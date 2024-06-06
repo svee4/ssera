@@ -43,6 +43,7 @@ jobs:
           file: ./src/LsfArchiveHelper.Client/Dockerfile
           push: true
           tags: svee4/lsfarchivehelper.client:latest
+          labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             BUILDCONST=ApiDomain='https://api.ssera.estral.fi'
 
@@ -81,3 +82,4 @@ jobs:
           file: ./src/LsfArchiveHelper.Api/Dockerfile
           push: true
           tags: svee4/lsfarchivehelper.api:latest
+          labels: ${{ steps.meta.outputs.labels }}
