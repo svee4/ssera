@@ -37,7 +37,7 @@ jobs:
           context: .
           file: ./src/LsfArchiveHelper.Client/Dockerfile
           push: true
-          tags: svee4/LsfArchiveHelper.Client:latest
+          tags: svee4/lsfarchivehelper.client:latest
           build-args: |
             BUILDCONST=ApiDomain=https://api.ssera.estral.fi
 
@@ -58,7 +58,7 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3.2.0
         with:
-          registry: ${{ env.registry }}
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           
@@ -67,6 +67,6 @@ jobs:
         uses: docker/build-push-action@v5.3.0
         with:
           context: .
-          file: ./src/LsfArchiveHelper.Api/Dockerfile
+          file: ./src/lsfarchivehelper.api/Dockerfile
           push: true
           tags: svee4/LsfArchiveHelper.Api:latest
