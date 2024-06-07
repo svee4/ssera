@@ -241,7 +241,7 @@
 		flex-direction: column;
 		gap: 0.75em;
 	}
-
+	
 	#filters {
 		display: flex;
 		gap: 1em;
@@ -250,6 +250,8 @@
 
 		& input[type="search"] {
 			padding: 4px;
+			border: 1px solid black;
+			border-radius: 2px;
 		}
 	}
 
@@ -270,6 +272,10 @@
 		grid-template-columns: repeat(6, 1fr);
 		width: min-content;
 		white-space: nowrap;
+		
+		& legend { 
+			display: contents;
+		}
 	}
 
 	#results-container {

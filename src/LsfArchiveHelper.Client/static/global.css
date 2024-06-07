@@ -5,6 +5,10 @@
 	font-family: Arial, Helvetica, sans-serif;
 }
 
+button, select, input {
+	color: black;
+}
+
 html {
 	height: 100%;
 }
