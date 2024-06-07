@@ -47,8 +47,7 @@ if (app.Environment.IsDevelopment())
 else
 {
 	app.UseForwardedHeaders();
-	app.UseHsts();
-	app.UseCors(options => options.WithOrigins(app.Configuration.GetRequiredValue("CorsAllowOrigin")));
+	app.UseCors(options => options.WithOrigins(app.Configuration.GetRequiredValue("CorsAllowOrigin").Split(",")));
 }
 
 app.UseHttpsRedirection();
