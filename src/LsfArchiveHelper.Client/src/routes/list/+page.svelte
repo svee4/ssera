@@ -249,6 +249,7 @@
 		flex-wrap: wrap;
 
 		& input[type="search"] {
+			font-size: 1em;
 			padding: 4px;
 			border: 1px solid black;
 			border-radius: 2px;
