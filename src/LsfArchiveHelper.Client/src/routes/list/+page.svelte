@@ -151,17 +151,19 @@
 		</div>
 
 		<div class="filter-item">
-			<fieldset id="filter-fieldset">
+			<fieldset>
 				<legend>Event type</legend>
-				{#each Object.entries(EventsApiHelper.AllEventTypes) as [key, name] }
-					<input
-						style="margin: 2px;"
-						style:accent-color={TypeColors[key]}
-						id="eventtype-{key}"
-						type="checkbox"
-						bind:checked={$selectedEventTypes[key]} />
-					<label style="margin: 2px;" for="eventtype-{key}">{name}</label>
-				{/each}
+				<div  id="filter-fieldset">
+					{#each Object.entries(EventsApiHelper.AllEventTypes) as [key, name] }
+						<input
+							style="margin: 2px;"
+							style:accent-color={TypeColors[key]}
+							id="eventtype-{key}"
+							type="checkbox"
+							bind:checked={$selectedEventTypes[key]} />
+						<label style="margin: 2px;" for="eventtype-{key}">{name}</label>
+					{/each}
+				</div>
 			</fieldset>
 		</div>
 		<div class="filter-item">
@@ -273,10 +275,6 @@
 		grid-template-columns: repeat(6, 1fr);
 		width: min-content;
 		white-space: nowrap;
-		
-		& legend { 
-			display: contents;
-		}
 	}
 
 	#results-container {
