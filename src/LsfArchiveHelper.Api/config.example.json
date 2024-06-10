@@ -1,5 +1,5 @@
 {
-	"CorsAllowOrigins": "myfrontend.com",
+	"CorsAllowOrigins": "https://myfrontend.com,http://myfrontend.com",
 	"Apikey": "<>",
 	"WorkerDelay": 30 ,
 	"SqliteFilename": "sqlite.db",
