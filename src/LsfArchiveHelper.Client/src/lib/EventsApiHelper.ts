@@ -14,8 +14,9 @@ export module EventsApiHelper {
 	};
 	
 	export type ApiResponse = {
-		events: ApiEvent[],
+		results: ApiEvent[],
 		lastUpdate?: string,
+		totalResults: number
 	}
 
 	export type ApiQuery = {

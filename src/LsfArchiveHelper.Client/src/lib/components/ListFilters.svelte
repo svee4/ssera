@@ -1,21 +1,22 @@
 <script lang="ts">
 	import { EventsApiHelper } from "../EventsApiHelper";
 	import { queryParam } from "sveltekit-search-params";
-	import { derived, get, type Writable } from "svelte/store";
 	import type { EventHandler } from "svelte/elements";
+	import type { Writable } from "svelte/store";
+
+	// this component is tightly coupled to the list page
 
 	export let orderBy: EventsApiHelper.OrderByType,
 		sort: EventsApiHelper.SortType,
 		selectedEventTypes: string[],
 		search: string,
+		pageSize: number,
 		onSubmit: EventHandler<SubmitEvent, HTMLFormElement> | undefined;
 
 	const queryParamOptions = {
 		showDefaults: false,
 		pushHistory: false,
 	};
-
-	const possibleEventTypes = Object.keys(EventsApiHelper.AllEventTypes);
 
 	const orderByStore = queryParam<EventsApiHelper.OrderByType>(
 		"orderBy",
@@ -30,7 +31,7 @@
 			defaultValue: "Date",
 		},
 		queryParamOptions,
-	);
+	) as Writable<EventsApiHelper.OrderByType>;
 
 	const sortStore = queryParam<EventsApiHelper.SortType>(
 		"sort",
@@ -45,16 +46,14 @@
 			defaultValue: "Descending",
 		},
 		queryParamOptions,
-	);
+	)  as Writable<EventsApiHelper.SortType>;
+
+	const possibleEventTypes = Object.keys(EventsApiHelper.AllEventTypes);
 
 	const selectedEventTypesStore = queryParam<Record<string, boolean>>(
 		"eventTypes",
 		{
-			encode: (value) =>
-				Object.entries(value)
-					.filter(([_, b]) => b)
-					.map(([k]) => k)
-					.join(",") || undefined,
+			encode: (value) => parseEnabledEventTypes(value).join(",") || undefined,
 			decode: (value) => {
 				const base = possibleEventTypes.reduce(
 					(prev, cur) => {
@@ -82,58 +81,80 @@
 			),
 		},
 		queryParamOptions,
-	);
+	) as Writable<Record<string, boolean>>;
 
-	const searchStore = queryParam("search", undefined, queryParamOptions);
+	const searchStore = queryParam("search", {
+			encode: value => value,
+			decode: value => value ?? "",
+			defaultValue: ""
+		}, 
+		queryParamOptions
+	)  as Writable<string>;
+
+	const pageSizeStore = queryParam("pageSize", {
+		encode: (v) => v.toString(),
+		decode: (v) => (v ? parseInt(v) : 1),
+		defaultValue: 20,
+	}) as Writable<number>;
 
 	$: orderBy = $orderByStore!;
 	$: sort = $sortStore!;
-	$: selectedEventTypes = Object.entries($selectedEventTypesStore!)
-		.filter(([_, b]) => b)
-		.reduce((prev, cur) => [...prev, cur[0]], [] as string[]);
+	$: selectedEventTypes = parseEnabledEventTypes($selectedEventTypesStore!);
 	$: search = $searchStore!;
+	$: pageSize = $pageSizeStore!;
 
 	// tracks if filters are not applied to the displayed list
-	let filtersAreDirty = false;
 	let prevQueryParams = getNewPrevQueryParams();
+	let dirty = false;
 
 	const submitCallback: EventHandler<SubmitEvent, HTMLFormElement> = (ev) => {
 		prevQueryParams = getNewPrevQueryParams();
+		dirty = false;
 		if (onSubmit) onSubmit(ev);
-		filtersAreDirty = false;
 	};
 
-	$: filtersAreDirty =
+	$: dirty =
 		$sortStore !== prevQueryParams.sort ||
 		$orderByStore !== prevQueryParams.orderBy ||
-		stringifyAllSelectedEventTypes($selectedEventTypesStore!) !==
-			prevQueryParams.selectedEventTypes ||
-		$searchStore !== prevQueryParams.search;
+		// again lazy array equality check order is guaranteed
+		parseEnabledEventTypes($selectedEventTypesStore!).toString() !==
+			prevQueryParams.selectedEventTypes.toString() ||
+		$searchStore !== prevQueryParams.search ||
+		$pageSizeStore !== prevQueryParams.pageSize;
 
 	function getNewPrevQueryParams() {
 		return {
 			sort: $sortStore,
 			orderBy: $orderByStore,
-			selectedEventTypes: stringifyAllSelectedEventTypes($selectedEventTypesStore!),
+			selectedEventTypes: parseEnabledEventTypes($selectedEventTypesStore!),
 			search: $searchStore,
+			pageSize: $pageSizeStore,
 		};
 	}
 
-	function stringifyAllSelectedEventTypes(selectedEventTypes: Record<string, boolean>) {
+	function parseEnabledEventTypes(selectedEventTypes: Record<string, boolean>) {
 		return Object.entries(selectedEventTypes)
-			.toSorted((a, b) => a[0].localeCompare(b[0])) // sort by key to keep order
-			.map((obj) => (obj[1] ? 1 : 0))
-			.join("");
+			.filter(([_, b]) => b)
+			.reduce((prev, cur) => [...prev, cur[0]], [] as string[]);
 	}
+
+	const dirtyBackgroundColor =  "rgb(255, 245, 254)";
+	const getBgColor = <TValue,>(storeValue: TValue, prevValue: TValue) =>
+		storeValue !== prevValue ? dirtyBackgroundColor : "";
 </script>
 
-<form id="form" on:submit|preventDefault={onSubmit}>
+<form id="form" on:submit|preventDefault={submitCallback}>
 	<h3>Filter</h3>
 	<div id="filters">
-		<div id="order-sort-container">
+		<div class="double-container">
 			<div class="filter-item">
 				<label for="orderby">Order by</label>
-				<select id="orderby" name="orderby" bind:value={$orderByStore}>
+				<select
+					id="orderby"
+					name="orderby"
+					bind:value={$orderByStore}
+					style:background-color={getBgColor($orderByStore, prevQueryParams.orderBy)}
+				>
 					{#each Object.entries(EventsApiHelper.AllOrderByTypes) as [key, name]}
 						<option value={key}>{name}</option>
 					{/each}
@@ -141,7 +162,12 @@
 			</div>
 			<div class="filter-item">
 				<label for="sort">Sort</label>
-				<select id="sort" name="sort" bind:value={$sortStore}>
+				<select
+					id="sort"
+					name="sort"
+					bind:value={$sortStore}
+					style:background-color={getBgColor($sortStore, prevQueryParams.sort)}
+				>
 					{#each Object.entries(EventsApiHelper.AllSortTypes) as [key, name]}
 						<option value={key}>{name}</option>
 					{/each}
@@ -154,30 +180,61 @@
 				<legend>Event type</legend>
 				<div id="fieldset">
 					{#each Object.entries(EventsApiHelper.AllEventTypes) as [key, name]}
-						<input
-							style="margin: 2px;"
-							style:accent-color={EventsApiHelper.TypeColors[key]}
-							id="eventtype-{key}"
-							type="checkbox"
-							bind:checked={$selectedEventTypesStore[key]}
-						/>
-						<label style="margin: 2px;" for="eventtype-{key}">{name}</label>
+						<div
+							style:background-color={(
+								$selectedEventTypesStore[key]
+									? !prevQueryParams.selectedEventTypes.includes(key)
+									: prevQueryParams.selectedEventTypes.includes(key)
+							)
+								? dirtyBackgroundColor
+								: ""}
+						>
+							<input
+								style="padding: 2px"
+								style:accent-color={EventsApiHelper.TypeColors[key]}
+								id="eventtype-{key}"
+								type="checkbox"
+								bind:checked={$selectedEventTypesStore[key]}
+							/>
+							<label style="padding: 2px;" for="eventtype-{key}">{name}</label>
+						</div>
 					{/each}
 				</div>
 			</fieldset>
 		</div>
-		<div class="filter-item">
-			<label for="search">Search title</label>
-			<input type="search" id="search" name="search" bind:value={$searchStore} />
+
+		<div class="double-container">
+			<div class="filter-item">
+				<label for="search">Search title</label>
+				<input
+					type="search"
+					id="search"
+					name="search"
+					bind:value={$searchStore}
+					style:background-color={getBgColor($searchStore, prevQueryParams.search)}
+				/>
+			</div>
+			<div class="filter-item">
+				<label for="pageSize">Rows per page</label>
+				<input
+					type="number"
+					id="pageSize"
+					name="pageSize"
+					bind:value={$pageSizeStore}
+					style:background-color={getBgColor($pageSizeStore, prevQueryParams.pageSize)}
+					min="10"
+					max="5000"
+				/>
+			</div>
 		</div>
 
-		<div class="filter-item">
-			<div>&nbsp;</div>
-			<button
-				id="apply"
-				style="color: black"
-				style:border-color={filtersAreDirty ? "blue" : ""}>Apply</button
-			>
+		<div class="double-container">
+			<div>
+				<button id="apply" style="width: 100%;">Apply</button>
+			</div>
+			<div>
+				<p style:visibility={dirty ? "visible" : "hidden"}>Unsaved changes</p>
+			</div>
 		</div>
 	</div>
 </form>
@@ -194,13 +251,6 @@
 		gap: 1em;
 		align-items: center;
 		flex-wrap: wrap;
-
-		& input[type="search"] {
-			font-size: 1em;
-			padding: 4px;
-			border: 1px solid black;
-			border-radius: 2px;
-		}
 	}
 
 	.filter-item {
@@ -208,7 +258,7 @@
 		flex-direction: column;
 	}
 
-	#order-sort-container {
+	.double-container {
 		display: flex;
 		flex-direction: column;
 		gap: 0.5em;
@@ -217,8 +267,28 @@
 	#fieldset {
 		padding: 4px;
 		display: grid;
-		grid-template-columns: repeat(6, 1fr);
+		grid-template-columns: repeat(3, 1fr);
 		width: min-content;
 		white-space: nowrap;
+	}
+
+	#fieldset > div {
+		display: flex;
+		margin: 1px;
+
+		& label {
+			width: 100%;
+		}
+	}
+
+	@media screen and (width <= 800px) {
+		.double-container {
+			flex-direction: row;
+			gap: 1em;
+		}
+
+		#fieldset {
+			grid-template-columns: repeat(2, 1fr);
+		}
 	}
 </style>

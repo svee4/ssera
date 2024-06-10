@@ -37,14 +37,15 @@ public static class ProblemDetailsHandler
 					context.HttpContext,
 					exception.StatusCode,
 					exception.InnerException?.Message ?? exception.Message);
-				
+
 				context.HttpContext.Response.StatusCode = 400;
 				break;
 			}
 
 			case { } ex:
 			{
-				var isDevelopment = context.HttpContext.RequestServices.GetRequiredService<IHostEnvironment>()
+				var isDevelopment = context.HttpContext.RequestServices
+					.GetRequiredService<IHostEnvironment>()
 					.IsDevelopment();
 
 				context.ProblemDetails = CreateProblemDetails(

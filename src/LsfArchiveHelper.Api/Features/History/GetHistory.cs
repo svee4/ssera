@@ -19,12 +19,12 @@ public sealed partial class GetHistory
 	) =>
 		await dbContext.WorkerHistory
 			.OrderByDescending(m => m.CreatedUtc)
+			.Take(50)
 			.Select(m => new HistoryModel(
 				m.CreatedUtc, 
 				m.TotalEvents,
 				m.TimeTaken.ToString("hh':'mm':'ss", CultureInfo.InvariantCulture),
 				m.Message))
-			.Take(50)
 			.ToListAsync(token);
 
 	// TODO figure out home timespans work in javascript

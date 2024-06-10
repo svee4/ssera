@@ -9,7 +9,8 @@ public sealed partial class AddHistory
 {
 	public sealed record Command
 	{
-		[GreaterThanOrEqual(0)] public required int TotalEvents { get; set; }
+		[GreaterThanOrEqual(0)]
+		public required int TotalEvents { get; set; }
 
 		public required TimeSpan TimeTaken { get; set; }
 
