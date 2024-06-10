@@ -183,7 +183,7 @@
 		<p>Loading...</p>
 	{:then data}
 		{#if data.lastUpdate}
-			<p>Last update: {new Date(data.lastUpdate).toLocaleString()}</p>
+			<p>Last import: {new Date(data.lastUpdate).toLocaleString()}</p>
 		{:else}
 			<p>Last update: {"<"}no data{">"}</p>
 		{/if}
@@ -210,7 +210,7 @@
 				<tr id={"row-" + i} style="background: color-mix(in srgb, {TypeColors[event.type]}, white 80%)">
 					<td class="col-number">{i}</td>
 					<td class="col-date">
-						<span>{event.dateUtc}</span>
+						<span>{new Date(event.date).toLocaleDateString()}</span>
 					</td>
 					<td class="col-type">
 						<span>
@@ -308,8 +308,12 @@
 				max-width: 80ch;
 			}
 
-			&.col-link > :is(a, span) {
-				word-break: break-all;
+			&.col-date {
+				word-break:keep-all;
+			}
+
+			&:is(.col-number, .col-date, .col-link) {
+				width: min-content;
 			}
 		}
 	}

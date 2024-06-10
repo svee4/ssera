@@ -7,7 +7,7 @@ export module EventsApiHelper {
 	export const ApiRoute = `${ApiHelper.ApiDomain}/api/events` as const;
 
 	export type ApiEvent = {
-		dateUtc: string,
+		date: string,
 		type: keyof typeof AllEventTypes,
 		title?: string,
 		link?: string

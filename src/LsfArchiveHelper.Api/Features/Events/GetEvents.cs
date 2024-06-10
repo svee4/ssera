@@ -1,4 +1,3 @@
-using System.Globalization;
 using Immediate.Apis.Shared;
 using Immediate.Handlers.Shared;
 using LsfArchiveHelper.Api.Database;
@@ -12,13 +11,13 @@ public sealed partial class GetEvents
 {
 	public sealed record Query
 	{
-		
+
 		[Immediate.Validations.Shared.EnumValue]
 		public OrderByType? OrderBy { get; init; }
-		
+
 		[Immediate.Validations.Shared.EnumValue]
 		public SortType? Sort { get; init; }
-		
+
 		public EventType[]? EventTypes { get; init; }
 		public string? Search { get; init; }
 	}
@@ -59,7 +58,7 @@ public sealed partial class GetEvents
 
 		var events = await query
 			.Select(m => new EventModel(
-				m.DateUtc.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+				m.DateUtc,
 				(EventType)m.Type,
 				m.Title,
 				m.Link))
@@ -69,13 +68,12 @@ public sealed partial class GetEvents
 			.Select(entry => entry.CreatedUtc)
 			.OrderByDescending(date => date)
 			.FirstOrDefaultAsync(token);
-		
+
 		return new ResponseModel(events, lastUpdate == default ? null : DateTime.SpecifyKind(lastUpdate, DateTimeKind.Utc));
 	}
 
-	// IM NOT DOING JAVASCRIPT DATES
-	
+
 	public sealed record ResponseModel(List<EventModel> Events, DateTime? LastUpdate);
 
-	public sealed record EventModel(string DateUtc, EventType Type, string? Title, string? Link);
+	public sealed record EventModel(DateTime Date, EventType Type, string? Title, string? Link);
 }
