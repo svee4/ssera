@@ -93,15 +93,11 @@
 		queryParamOptions,
 	) as Writable<string>;
 
-	const pageSizeStore = queryParam(
-		"pageSize",
-		{
-			encode: (v) => v?.toString(),
-			decode: (v) => (v ? parseInt(v) : null),
-			// defaultValue: 20,
-		},
-		queryParamOptions,
-	) as Writable<number | null>;
+	const pageSizeStore = queryParam("pageSize", {
+		encode: (v) => v.toString(),
+		decode: (v) => (v ? parseInt(v) : 1),
+		defaultValue: 100,
+	}) as Writable<number>;
 
 	$: orderBy = $orderByStore!;
 	$: sort = $sortStore!;
