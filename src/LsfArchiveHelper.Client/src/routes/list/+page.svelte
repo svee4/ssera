@@ -4,8 +4,6 @@
 	import ListFilters from "$lib/components/ListFilters.svelte";
 	import { queryParam } from "sveltekit-search-params";
 	import { get } from "svelte/store";
-	import { fade, blur, fly, slide, scale } from "svelte/transition";
-	import { linear } from "svelte/easing";
 	import PagingDisplay from "$lib/components/PagingDisplay.svelte";
 
 	let response: Promise<EventsApiHelper.ApiResponse> = new Promise(() => {});
@@ -15,7 +13,7 @@
 		sort: EventsApiHelper.SortType,
 		selectedEventTypes: string[],
 		search: string,
-		pageSize: number;
+		pageSize: number | null;
 
 	let pageNumberStore = queryParam("page", {
 		encode: (v) => v.toString(),
@@ -48,6 +46,9 @@
 	};
 
 	function fetchData() {
+
+		if (!pageSize) return;
+
 		if (responsePending) return;
 		responsePending = true;
 
@@ -91,7 +92,7 @@
 	}
 
 	function setPageNumber(number: number) {
-		if (number <= 0) return;
+		if (!number || number < 0) return;
 		pageNumber = number;
 		fetchData();
 	}
@@ -99,12 +100,14 @@
 	function getPageNumberSetter(totalResults: number) {
 		// uhhh currently the result of the fetch is not saved anywhere so we use this
 		return (number: number) => {
-			if (number > Math.ceil(totalResults / pageSize)) return;
+			if (number > Math.ceil(totalResults / activeFilters.pageSize!)) return;
 			setPageNumber(number);
 		}
 	}
 
 	function setActiveFilters() {
+		if (!pageSize) throw new Error("pageSize should not be null when calling setActiveFilters");
+
 		activeFilters = {
 			orderBy,
 			sort,
@@ -141,11 +144,7 @@
 		{:else}
 			<p>Last import: {"<"}no data{">"}</p>
 		{/if}
-		<div
-			in:blur={{ delay: 75, duration: 75, easing: linear }}
-			out:blur={{ duration: 75, easing: linear }}
-			id="data-container"
-		>
+		<div id="data-container">
 			<PagingDisplay
 				pageNumber={activeFilters.pageNumber}
 				bind:dirtyPageNumber={pageNumber}
@@ -181,7 +180,7 @@
 						>
 							<td class="col-number">
 								<span>
-									{i + (pageNumber - 1) * pageSize + 1}
+									{i + (activeFilters.pageNumber - 1) * activeFilters.pageSize + 1}
 								</span>
 							</td>
 							<td class="col-date">

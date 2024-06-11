@@ -10,7 +10,7 @@
 		sort: EventsApiHelper.SortType,
 		selectedEventTypes: string[],
 		search: string,
-		pageSize: number,
+		pageSize: number | null,
 		onSubmit: EventHandler<SubmitEvent, HTMLFormElement> | undefined;
 
 	const queryParamOptions = {
@@ -46,7 +46,7 @@
 			defaultValue: "Descending",
 		},
 		queryParamOptions,
-	)  as Writable<EventsApiHelper.SortType>;
+	) as Writable<EventsApiHelper.SortType>;
 
 	const possibleEventTypes = Object.keys(EventsApiHelper.AllEventTypes);
 
@@ -83,25 +83,31 @@
 		queryParamOptions,
 	) as Writable<Record<string, boolean>>;
 
-	const searchStore = queryParam("search", {
-			encode: value => value,
-			decode: value => value ?? "",
-			defaultValue: ""
-		}, 
-		queryParamOptions
-	)  as Writable<string>;
+	const searchStore = queryParam(
+		"search",
+		{
+			encode: (value) => value,
+			decode: (value) => value ?? "",
+			defaultValue: "",
+		},
+		queryParamOptions,
+	) as Writable<string>;
 
-	const pageSizeStore = queryParam("pageSize", {
-		encode: (v) => v.toString(),
-		decode: (v) => (v ? parseInt(v) : 1),
-		defaultValue: 20,
-	}) as Writable<number>;
+	const pageSizeStore = queryParam(
+		"pageSize",
+		{
+			encode: (v) => v?.toString(),
+			decode: (v) => (v ? parseInt(v) : null),
+			// defaultValue: 20,
+		},
+		queryParamOptions,
+	) as Writable<number | null>;
 
 	$: orderBy = $orderByStore!;
 	$: sort = $sortStore!;
 	$: selectedEventTypes = parseEnabledEventTypes($selectedEventTypesStore!);
 	$: search = $searchStore!;
-	$: pageSize = $pageSizeStore!;
+	$: pageSize = $pageSizeStore;
 
 	// tracks if filters are not applied to the displayed list
 	let prevQueryParams = getNewPrevQueryParams();
@@ -138,7 +144,7 @@
 			.reduce((prev, cur) => [...prev, cur[0]], [] as string[]);
 	}
 
-	const dirtyBackgroundColor =  "rgb(255, 245, 254)";
+	const dirtyBackgroundColor = "rgb(255, 245, 254)";
 	const getBgColor = <TValue,>(storeValue: TValue, prevValue: TValue) =>
 		storeValue !== prevValue ? dirtyBackgroundColor : "";
 </script>
@@ -222,6 +228,7 @@
 					name="pageSize"
 					bind:value={$pageSizeStore}
 					style:background-color={getBgColor($pageSizeStore, prevQueryParams.pageSize)}
+					required
 					min="10"
 					max="5000"
 				/>
