@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LsfArchiveHelper.Api", "B:\LsfArchiveHelper\src\LsfArchiveHelper.Api\LsfArchiveHelper.Api.csproj", "{8A8B88BE-2550-4618-BCC7-906EE1F969EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LsfArchiveHelper.Api", "LsfArchiveHelper.Api.csproj", "{8E386E5D-4769-49DD-9EF3-09FACEA876E9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,12 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8A8B88BE-2550-4618-BCC7-906EE1F969EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8A8B88BE-2550-4618-BCC7-906EE1F969EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8A8B88BE-2550-4618-BCC7-906EE1F969EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8A8B88BE-2550-4618-BCC7-906EE1F969EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E386E5D-4769-49DD-9EF3-09FACEA876E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E386E5D-4769-49DD-9EF3-09FACEA876E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E386E5D-4769-49DD-9EF3-09FACEA876E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E386E5D-4769-49DD-9EF3-09FACEA876E9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {88FEEEC2-DFB8-4B8B-B0A8-7AD908CA34B2}
 	EndGlobalSection
 EndGlobal

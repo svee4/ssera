@@ -9,7 +9,7 @@ using LsfArchiveHelper.Api.Infra.Startup;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 
-[assembly: Behaviors(typeof(ValidationBehavior<,>))] 
+[assembly: Behaviors(typeof(ValidationBehavior<,>))]
 
 var builder = WebApplication.CreateBuilder(args);
 
