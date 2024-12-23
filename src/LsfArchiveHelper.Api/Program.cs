@@ -28,7 +28,7 @@ builder.Services.AddBehaviors();
 
 builder.Services.AddProblemDetailsHandler();
 builder.Services.AddCors();
-builder.Services.Configure<ForwardedHeadersOptions>(options => 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
 	options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
 
 builder.Services.AddHostedService<Worker>();
