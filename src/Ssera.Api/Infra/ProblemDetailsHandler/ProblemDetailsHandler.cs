@@ -1,90 +1,90 @@
-using System.Diagnostics;
 using Immediate.Validations.Shared;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace Ssera.Api.Infra.ProblemDetailsHandler;
 
 public static class ProblemDetailsHandler
 {
-	public static void Handle(ProblemDetailsContext context)
-	{
-		ArgumentNullException.ThrowIfNull(context);
+    public static void Handle(ProblemDetailsContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
 
-		if (context.Exception is null) return;
+        if (context.Exception is null) return;
 
-		switch (context.Exception)
-		{
-			case ValidationException ex:
-			{
-				// patch: convert an Immediate.Validations validation failure into a 400 bad request
+        switch (context.Exception)
+        {
+            case ValidationException ex:
+            {
+                // patch: convert an Immediate.Validations validation failure into a 400 bad request
 
-				context.ProblemDetails = CreateValidationProblemDetails(
-					context: context.HttpContext,
-					status: 400,
-					detail: ex.Message,
-					errors: ex.Errors
-						.GroupBy(x => x.PropertyName)
-						.ToDictionary(x => x.Key, x => x.Select(y => y.ErrorMessage).ToArray()));
+                context.ProblemDetails = CreateValidationProblemDetails(
+                    context: context.HttpContext,
+                    status: 400,
+                    detail: ex.Message,
+                    errors: ex.Errors
+                        .GroupBy(x => x.PropertyName)
+                        .ToDictionary(x => x.Key, x => x.Select(y => y.ErrorMessage).ToArray()));
 
-				context.HttpContext.Response.StatusCode = 400;
-				break;
-			}
+                context.HttpContext.Response.StatusCode = 400;
+                break;
+            }
 
-			case BadHttpRequestException exception:
-			{
-				// patch: convert a json request body parse error into a 400 bad request
-				context.ProblemDetails = CreateValidationProblemDetails(
-					context.HttpContext,
-					exception.StatusCode,
-					exception.InnerException?.Message ?? exception.Message);
+            case BadHttpRequestException exception:
+            {
+                // patch: convert a json request body parse error into a 400 bad request
+                context.ProblemDetails = CreateValidationProblemDetails(
+                    context.HttpContext,
+                    exception.StatusCode,
+                    exception.InnerException?.Message ?? exception.Message);
 
-				context.HttpContext.Response.StatusCode = 400;
-				break;
-			}
+                context.HttpContext.Response.StatusCode = 400;
+                break;
+            }
 
-			case { } ex:
-			{
-				var isDevelopment = context.HttpContext.RequestServices
-					.GetRequiredService<IHostEnvironment>()
-					.IsDevelopment();
+            case { } ex:
+            {
+                var isDevelopment = context.HttpContext.RequestServices
+                    .GetRequiredService<IHostEnvironment>()
+                    .IsDevelopment();
 
-				context.ProblemDetails = CreateProblemDetails(
-					context: context.HttpContext,
-					status: 500,
-					detail: isDevelopment ? $"'{ex.GetType().Name}':\n--->{ex.Message}" : $"{ex.GetType().Name}");
+                context.ProblemDetails = CreateProblemDetails(
+                    context: context.HttpContext,
+                    status: 500,
+                    detail: isDevelopment ? $"'{ex.GetType().Name}':\n--->{ex.Message}" : $"{ex.GetType().Name}");
 
-				context.ProblemDetails.Title = "Unhandled server error";
-				context.HttpContext.Response.StatusCode = 500;
+                context.ProblemDetails.Title = "Unhandled server error";
+                context.HttpContext.Response.StatusCode = 500;
 
-				var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<IProblemDetailsService>>();
-				logger.LogError("Unhandled server error for TraceId '{TraceId}':\n{Error}",
-					context.HttpContext.TraceIdentifier, context.Exception);
+                var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<IProblemDetailsService>>();
+                logger.LogError("Unhandled server error for TraceId '{TraceId}':\n{Error}",
+                    context.HttpContext.TraceIdentifier, context.Exception);
 
-				break;
-			}
+                break;
+            }
 
-			default: throw new UnreachableException();
-		}
-	}
+            default: throw new UnreachableException();
+        }
+    }
 
-	private static ProblemDetails CreateProblemDetails(HttpContext context, int status, string? detail = null) =>
-		new()
-		{
-			Status = status,
-			Detail = detail,
-			Extensions = new Dictionary<string, object?>() { ["TraceId"] = context.TraceIdentifier }
-		};
+    private static ProblemDetails CreateProblemDetails(HttpContext context, int status, string? detail = null) =>
+        new()
+        {
+            Status = status,
+            Detail = detail,
+            Extensions = new Dictionary<string, object?>() { ["TraceId"] = context.TraceIdentifier }
+        };
 
-	private static ValidationProblemDetails CreateValidationProblemDetails(
-		HttpContext context,
-		int status,
-		string? detail = null,
-		Dictionary<string, string[]>? errors = null)
-	{
-		var o = errors is not null ? new ValidationProblemDetails(errors) : new ValidationProblemDetails();
-		o.Status = status;
-		o.Detail = detail;
-		o.Extensions = new Dictionary<string, object?>() { ["TraceId"] = context.TraceIdentifier };
-		return o;
-	}
+    private static ValidationProblemDetails CreateValidationProblemDetails(
+        HttpContext context,
+        int status,
+        string? detail = null,
+        Dictionary<string, string[]>? errors = null)
+    {
+        var o = errors is not null ? new ValidationProblemDetails(errors) : new ValidationProblemDetails();
+        o.Status = status;
+        o.Detail = detail;
+        o.Extensions = new Dictionary<string, object?>() { ["TraceId"] = context.TraceIdentifier };
+        return o;
+    }
 }
