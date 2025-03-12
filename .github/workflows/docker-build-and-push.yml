@@ -6,7 +6,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  NAME_BASE: svee4/lsfarchivehelper
+  NAME_BASE: svee4/Ssera
 
 jobs:
   client:
@@ -39,8 +39,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5.3.0
         with:
-          context: ./src/LsfArchiveHelper.Client
-          file: ./src/LsfArchiveHelper.Client/Dockerfile
+          context: ./src/Ssera.Client
+          file: ./src/Ssera.Client/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -78,8 +78,8 @@ jobs:
         id: push
         uses: docker/build-push-action@v5.3.0
         with:
-          context: ./src/LsfArchiveHelper.Api
-          file: ./src/LsfArchiveHelper.Api/Dockerfile
+          context: ./src/Ssera.Api
+          file: ./src/Ssera.Api/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
