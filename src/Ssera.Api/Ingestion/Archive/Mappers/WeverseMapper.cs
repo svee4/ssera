@@ -1,11 +1,9 @@
 using Google.Apis.Sheets.v4.Data;
 
-namespace Ssera.Api.Worker.Mappers;
+namespace Ssera.Api.Ingestion.Archive.Mappers;
 
-public sealed class WeverseMapper : IMapper<WeverseMapper>
+public sealed class WeverseMapper : IEventSheetMapper
 {
-    public string SheetName => "Weverse live";
-    public static WeverseMapper Instance { get; } = new();
     private static class Columns
     {
         public static int Date => 1;
@@ -18,6 +16,6 @@ public sealed class WeverseMapper : IMapper<WeverseMapper>
     {
         ArgumentNullException.ThrowIfNull(sheet);
         var helper = new MapperHelper { SkipRows = 3 };
-        return helper.ParseRows(sheet.Data[0].RowData).Select(row => new Event { Date = row.Date, Title = row.Title, Link = row.Link });
+        return helper.ParseRows(sheet.Data[0].RowData).Select(row => new Event(row.Date, row.Title, row.Link));
     }
 }

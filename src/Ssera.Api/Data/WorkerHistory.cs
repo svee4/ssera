@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Ssera.Api.Database;
+namespace Ssera.Api.Data;
 
 [SuppressMessage("ReSharper", "EntityFramework.ModelValidation.UnlimitedStringLength",
     Justification = "Not possible in Sqlite")]
@@ -30,7 +30,7 @@ public sealed class WorkerHistory
         };
     }
 
-    public sealed class Configuration : IEntityTypeConfiguration<WorkerHistory>
+    private sealed class Configuration : IEntityTypeConfiguration<WorkerHistory>
     {
         public void Configure(EntityTypeBuilder<WorkerHistory> builder)
         {

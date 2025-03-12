@@ -1,7 +1,7 @@
 using Immediate.Apis.Shared;
 using Immediate.Handlers.Shared;
 using Microsoft.EntityFrameworkCore;
-using Ssera.Api.Database;
+using Ssera.Api.Data;
 using System.Globalization;
 
 namespace Ssera.Api.Features.History;
@@ -14,7 +14,7 @@ public sealed partial class GetHistory
 
     private static async ValueTask<List<HistoryModel>> HandleAsync(
         Query _,
-        AppDbContext dbContext,
+        ApiDbContext dbContext,
         CancellationToken token
     ) =>
         await dbContext.WorkerHistory

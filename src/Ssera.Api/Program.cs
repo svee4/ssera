@@ -3,11 +3,12 @@ using Immediate.Validations.Shared;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Ssera.Api;
-using Ssera.Api.Database;
+using Ssera.Api.Data;
 using Ssera.Api.Infra.Configuration;
 using Ssera.Api.Infra.ProblemDetailsHandler;
 using Ssera.Api.Infra.Startup;
-using Ssera.Api.Worker;
+using Ssera.Api.Ingestion;
+using Ssera.Api.Ingestion.Archive.Mappers;
 
 [assembly: Behaviors(typeof(ValidationBehavior<,>))]
 
@@ -15,10 +16,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 var sqliteConnectionString = builder.Configuration.GetRequiredValue("ConnectionStrings:Sqlite");
 
-builder.Services.AddSqlite<AppDbContext>(sqliteConnectionString);
+builder.Services.AddSqlite<ApiDbContext>(sqliteConnectionString);
 
-builder.Services.AddHandlers();
-builder.Services.AddBehaviors();
+builder.Services.AddSseraApiHandlers();
+builder.Services.AddSseraApiBehaviors();
 
 builder.Services.AddProblemDetailsHandler();
 builder.Services.AddCors();
@@ -28,6 +29,18 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 builder.Services.AddHostedService<Worker>();
 
 builder.Services.AddSwagger();
+
+builder.Services.AddKeyedScoped<IEventSheetMapper, DefaultMapper>(EventSheetEventKind.TeasersMV.AsHuman());
+builder.Services.AddKeyedScoped<IEventSheetMapper, PerformanceVarietyRealityMapper>(EventSheetEventKind.Performance.AsHuman());
+builder.Services.AddKeyedScoped<IEventSheetMapper, MusicShowsMapper>(EventSheetEventKind.MusicShows.AsHuman());
+builder.Services.AddKeyedScoped<IEventSheetMapper, DefaultMapper>(EventSheetEventKind.BehindTheScenes.AsHuman());
+builder.Services.AddKeyedScoped<IEventSheetMapper, DefaultMapper>(EventSheetEventKind.Interview.AsHuman());
+builder.Services.AddKeyedScoped<IEventSheetMapper, PerformanceVarietyRealityMapper>(EventSheetEventKind.Variety.AsHuman());
+builder.Services.AddKeyedScoped<IEventSheetMapper, PerformanceVarietyRealityMapper>(EventSheetEventKind.Reality.AsHuman());
+builder.Services.AddKeyedScoped<IEventSheetMapper, CFMapper>(EventSheetEventKind.CF.AsHuman());
+builder.Services.AddKeyedScoped<IEventSheetMapper, DefaultMapper>(EventSheetEventKind.Misc.AsHuman());
+builder.Services.AddKeyedScoped<IEventSheetMapper, DefaultMapper>(EventSheetEventKind.MubankPresident.AsHuman());
+builder.Services.AddKeyedScoped<IEventSheetMapper, WeverseMapper>(EventSheetEventKind.WeverseLive.AsHuman());
 
 var app = builder.Build();
 
@@ -50,7 +63,7 @@ app.MapSseraApiEndpoints();
 
 await using (var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateAsyncScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
     await dbContext.Database.MigrateAsync();
 }
 

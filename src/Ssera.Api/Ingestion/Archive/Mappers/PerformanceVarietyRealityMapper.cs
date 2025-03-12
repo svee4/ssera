@@ -1,12 +1,10 @@
 using Google.Apis.Sheets.v4.Data;
 
-namespace Ssera.Api.Worker.Mappers;
+namespace Ssera.Api.Ingestion.Archive.Mappers;
 
-public sealed class PerformanceMapper : IMapper<PerformanceMapper>
+
+public sealed class PerformanceVarietyRealityMapper : IEventSheetMapper
 {
-    public string SheetName => "Performance";
-    public static PerformanceMapper Instance { get; } = new();
-
     private static class Columns
     {
         public static int Date => 1;
@@ -26,17 +24,19 @@ public sealed class PerformanceMapper : IMapper<PerformanceMapper>
             LinkColumn = Columns.Link,
             TitleMapper = row =>
             {
-                var title = row.GetNormalizedColumnValue(Columns.Title);
-                if (title is null) return null;
+                if (!row.TryGetColumnValue(Columns.Title, out var title))
+                {
+                    return null;
+                }
 
-                var series = row.TryGetColumnValue(Columns.Series, out var series2)
-                    ? previousSeries = series2
+                var series = row.TryGetColumnValue(Columns.Series, out var curSeries)
+                    ? previousSeries = curSeries
                     : previousSeries;
 
                 return $"{series} - {title}";
             }
         };
 
-        return helper.ParseRows(sheet.Data[0].RowData).Select(row => new Event { Date = row.Date, Title = row.Title, Link = row.Link });
+        return helper.ParseRows(sheet.Data[0].RowData).Select(row => new Event(row.Date, row.Title, row.Link));
     }
 }

@@ -1,6 +1,6 @@
 using Immediate.Handlers.Shared;
 using Immediate.Validations.Shared;
-using Ssera.Api.Database;
+using Ssera.Api.Data;
 
 namespace Ssera.Api.Features.History;
 
@@ -26,7 +26,7 @@ public sealed partial class AddHistory
     /// <returns></returns>
     private static async ValueTask<bool> HandleAsync(
         Command command,
-        AppDbContext dbContext,
+        ApiDbContext dbContext,
         CancellationToken token)
     {
         var entity = WorkerHistory.CreateNew(command.TotalEvents, command.TimeTaken, command.Message);

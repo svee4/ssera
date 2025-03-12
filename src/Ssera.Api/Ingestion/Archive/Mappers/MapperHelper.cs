@@ -1,9 +1,7 @@
 using Google.Apis.Sheets.v4.Data;
-using System.Globalization;
 
-namespace Ssera.Api.Worker.Mappers;
+namespace Ssera.Api.Ingestion.Archive.Mappers;
 
-// row where link and title are null or whitespace will be skipped
 public sealed class MapperHelper
 {
     public int DateColumn { get; set; } = 1;
@@ -13,12 +11,7 @@ public sealed class MapperHelper
 
     public Func<RowData, string?>? TitleMapper { get; set; }
 
-    public class Row
-    {
-        public required DateTime Date { get; init; }
-        public required string? Title { get; init; }
-        public required string? Link { get; init; }
-    }
+    public sealed record Row(DateTime Date, string? Title, string? Link);
 
     public IEnumerable<Row> ParseRows(IEnumerable<RowData> rows)
     {
@@ -36,13 +29,16 @@ public sealed class MapperHelper
                 var title = TitleMapper(row);
                 var link = row.GetNormalizedColumnValue(LinkColumn);
 
-                if ((title, link) is (null, null)) continue;
+                if (title is null && link is null)
+                {
+                    continue;
+                }
 
-                var date = row.TryGetColumnValue(DateColumn, out var dateString)
-                    && dateString != "Globalz in Cali"
-                    ? (previousDate = DateTime.Parse(dateString, CultureInfo.InvariantCulture))
+                var date = row.TryGetColumnValueAsDate(DateColumn, out var curDate)
+                    ? previousDate = curDate
                     : previousDate;
-                yield return new Row { Date = date, Title = title, Link = link };
+
+                yield return new Row(date, title, link);
             }
         }
     }

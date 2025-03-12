@@ -1,8 +1,9 @@
 using Immediate.Apis.Shared;
 using Immediate.Handlers.Shared;
 using Immediate.Validations.Shared;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Ssera.Api.Database;
+using Ssera.Api.Data;
 
 namespace Ssera.Api.Features.Events;
 
@@ -14,11 +15,10 @@ public sealed partial class GetEvents
     [Validate]
     public sealed partial record Query : IValidationTarget<Query>
     {
-
         public OrderByType? OrderBy { get; init; }
-
         public SortType? Sort { get; init; }
 
+        [FromQuery]
         public EventType[]? EventTypes { get; init; }
         public string? Search { get; init; }
 
@@ -29,33 +29,33 @@ public sealed partial class GetEvents
         public int PageSize { get; init; }
     }
 
+    public sealed record ResponseModel(List<EventModel> Results, DateTime? LastUpdate, int TotalResults);
+    public sealed record EventModel(DateTime Date, EventType Type, string? Title, string? Link);
+
     private static async ValueTask<ResponseModel> HandleAsync(
         Query requestQuery,
-        AppDbContext dbContext,
+        ApiDbContext dbContext,
         CancellationToken token)
     {
-        var query = dbContext.Events.AsQueryable();
+        var query = dbContext.EventSheetEvents.AsQueryable();
 
         if (requestQuery.EventTypes is { Length: > 0 })
         {
             // all valid api event types SHOULD be valid database event types
-            var types = requestQuery.EventTypes.Where(Enum.IsDefined).Cast<Database.EventType>().ToArray();
+            var types = requestQuery.EventTypes.Where(Enum.IsDefined).Cast<EventSheetEventKind>().ToArray();
             query = query.Where(m => types.Contains(m.Type));
         }
 
         if (!string.IsNullOrWhiteSpace(requestQuery.Search))
         {
-            // TODO: escape the like properly - currently special characters like % are interpreted as part of the query
-            // note that this does not introduce a real sql injection, just that you can fuck around with the query
-            // sqlite is case-insensitive by default
             query = query.Where(m => EF.Functions.Like(m.Title, $"%{requestQuery.Search}%"));
         }
 
         var isDescending = requestQuery.Sort == SortType.Descending;
         var orderedQuery = (requestQuery.OrderBy, isDescending) switch
         {
-            (OrderByType.Date, true) => query.OrderByDescending(entry => entry.DateUtc),
-            (OrderByType.Date, false) => query.OrderBy(entry => entry.DateUtc),
+            (OrderByType.Date, true) => query.OrderByDescending(entry => entry.Date),
+            (OrderByType.Date, false) => query.OrderBy(entry => entry.Date),
             (OrderByType.Type, true) => query.OrderByDescending(entry => entry.Type),
             (OrderByType.Type, false) => query.OrderBy(entry => entry.Type),
             (OrderByType.Title, true) => query.OrderByDescending(entry => entry.Title),
@@ -75,7 +75,7 @@ public sealed partial class GetEvents
             ? []
             : await query
                 .Select(m => new EventModel(
-                    m.DateUtc,
+                    m.Date,
                     (EventType)m.Type,
                     m.Title,
                     m.Link))
@@ -94,9 +94,4 @@ public sealed partial class GetEvents
             count
         );
     }
-
-
-    public sealed record ResponseModel(List<EventModel> Results, DateTime? LastUpdate, int TotalResults);
-
-    public sealed record EventModel(DateTime Date, EventType Type, string? Title, string? Link);
 }

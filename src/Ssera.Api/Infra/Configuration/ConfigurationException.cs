@@ -2,24 +2,26 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Ssera.Api.Infra.Configuration;
 
+[SuppressMessage("Design",
+    "CA1032:Implement standard exception constructors",
+    Justification = "I want standardized error messages")]
 public sealed class ConfigurationException : Exception
 {
-    public ConfigurationException(string message) : base(message)
-    {
-    }
+    private ConfigurationException(string message) : base(message) { }
 
-    public ConfigurationException()
-    {
-    }
+    // these internal Create methods and throw helpers can be made public if needed
 
-    public ConfigurationException(string message, Exception innerException) : base(message, innerException)
-    {
-    }
+    internal static ConfigurationException CreateMissingKey(string key) =>
+        new($"Expected configuration value '{key}' was not present in the configuration");
 
     [DoesNotReturn]
-    public static T Throw<T>() => throw new ConfigurationException();
+    internal static void ThrowMissingKey(string key) =>
+        throw CreateMissingKey(key);
+
+    internal static ConfigurationException CreateUnparsable<T>(string key) where T : IParsable<T> =>
+        new($"Unable to parse configuration value '{key}' into {typeof(T).FullName}");
 
     [DoesNotReturn]
-    public static T Throw<T>(string message) => throw new ConfigurationException(message);
-
+    internal static void ThrowUnparsable<T>(string key) where T : IParsable<T> =>
+        throw CreateUnparsable<T>(key);
 }
