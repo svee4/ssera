@@ -1,8 +1,8 @@
 using Google.Apis.Sheets.v4.Data;
 
-namespace Ssera.Api.Ingestion.Archive.Mappers;
+namespace Ssera.Api.Ingestion.EventArchive.Mappers;
 
-public sealed class WeverseMapper : IEventSheetMapper
+public sealed class WeverseMapper : IEventArchiveSheetMapper
 {
     private static class Columns
     {

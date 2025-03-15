@@ -1,9 +1,10 @@
 using Google.Apis.Sheets.v4.Data;
+using Ssera.Api.Ingestion.Archive.Mappers;
 
-namespace Ssera.Api.Ingestion.Archive.Mappers;
+namespace Ssera.Api.Ingestion.EventArchive.Mappers;
 
 
-public sealed class PerformanceVarietyRealityMapper : IEventSheetMapper
+public sealed class PerformanceVarietyRealityMapper : IEventArchiveSheetMapper
 {
     private static class Columns
     {

@@ -35,7 +35,6 @@ public sealed class WorkerHistory
         public void Configure(EntityTypeBuilder<WorkerHistory> builder)
         {
             ArgumentNullException.ThrowIfNull(builder);
-
             _ = builder.HasIndex(m => m.CreatedUtc);
         }
     }

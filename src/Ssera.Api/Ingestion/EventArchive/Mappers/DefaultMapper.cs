@@ -1,9 +1,9 @@
 using Google.Apis.Sheets.v4.Data;
 using System.Diagnostics;
 
-namespace Ssera.Api.Ingestion.Archive.Mappers;
+namespace Ssera.Api.Ingestion.EventArchive.Mappers;
 
-public sealed class DefaultMapper : IEventSheetMapper
+public sealed class DefaultMapper : IEventArchiveSheetMapper
 {
     public static DefaultMapper Instance { get; } = new();
 

@@ -1,12 +1,13 @@
 using Google.Apis.Sheets.v4.Data;
 using Ssera.Api.Data;
+using Ssera.Api.Ingestion.Archive.Mappers;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 
-namespace Ssera.Api.Ingestion.Archive.Mappers;
+namespace Ssera.Api.Ingestion.EventArchive.Mappers;
 
-public sealed class CFMapper(ILogger<CFMapper> logger) : IEventSheetMapper
+public sealed class CFMapper(ILogger<CFMapper> logger) : IEventArchiveSheetMapper
 {
     private readonly ILogger<CFMapper> _logger = logger;
 
@@ -36,7 +37,7 @@ public sealed class CFMapper(ILogger<CFMapper> logger) : IEventSheetMapper
                 var title = row.GetNormalizedColumnValue(Columns.Title);
                 var cfType = row.GetNormalizedColumnValue(Columns.CFType);
                 var members = row.GetNormalizedColumnValue(Columns.Members);
-                
+
                 if (link is null || (title is null && cfType is null && members is null))
                 {
                     continue;
@@ -59,7 +60,7 @@ public sealed class CFMapper(ILogger<CFMapper> logger) : IEventSheetMapper
                     else
                     {
                         MappingExtensions.LogInvalidDateFormat(_logger,
-                            EventSheetEventKind.CF.AsHuman(), dateString, rowIndex);
+                            EventArchiveEventKid.CF.AsHuman(), dateString, rowIndex);
                         date = previousDate;
                     }
                 }
@@ -71,10 +72,21 @@ public sealed class CFMapper(ILogger<CFMapper> logger) : IEventSheetMapper
                 const string Separator = " - ";
 
                 var titleBuilder = new StringBuilder();
-                if (link is not null) _ = titleBuilder.Append(link).Append(Separator);
-                if (title is not null) _ = titleBuilder.Append(title).Append(Separator);
-                if (cfType is not null) _ = titleBuilder.Append(cfType).Append(Separator);
-                if (members is not null) _ = titleBuilder.Append(members).Append(Separator);
+
+                if (title is not null)
+                {
+                    _ = titleBuilder.Append(title).Append(Separator);
+                }
+
+                if (cfType is not null)
+                {
+                    _ = titleBuilder.Append(cfType).Append(Separator);
+                }
+
+                if (members is not null)
+                {
+                    _ = titleBuilder.Append(members).Append(Separator);
+                }
 
                 _ = titleBuilder.Remove(titleBuilder.Length - Separator.Length, Separator.Length);
 

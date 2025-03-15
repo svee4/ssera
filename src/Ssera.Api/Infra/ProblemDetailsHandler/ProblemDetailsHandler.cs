@@ -10,7 +10,10 @@ public static class ProblemDetailsHandler
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        if (context.Exception is null) return;
+        if (context.Exception is null)
+        {
+            return;
+        }
 
         switch (context.Exception)
         {

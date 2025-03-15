@@ -7,7 +7,8 @@ namespace Ssera.Api.Features.History;
 [Handler]
 public sealed partial class AddHistory
 {
-    public sealed record Command
+    [Validate]
+    public sealed record Command : IValidationTarget<Command>
     {
         [GreaterThanOrEqual(0)]
         public required int TotalEvents { get; set; }

@@ -27,7 +27,10 @@ public static partial class MappingExtensions
         value = default;
 
         var realValue = rowData.GetNormalizedColumnValue(columnIndex);
-        if (realValue is null) return false;
+        if (realValue is null)
+        {
+            return false;
+        }
 
         value = realValue;
         return true;

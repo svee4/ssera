@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Builder;
-
 namespace Ssera.Api.Infra.Startup;
 
 public static class ServiceCollectionExtensions

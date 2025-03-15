@@ -1,6 +1,7 @@
 using Google.Apis.Sheets.v4.Data;
+using Ssera.Api.Ingestion.Archive.Mappers;
 
-namespace Ssera.Api.Ingestion.Archive.Mappers;
+namespace Ssera.Api.Ingestion.EventArchive.Mappers;
 
 public sealed class MapperHelper
 {

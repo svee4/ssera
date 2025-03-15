@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Ssera.Api.Data;
 using Ssera.Api.Features.History;
 using Ssera.Api.Infra.Configuration;
-using Ssera.Api.Ingestion.Archive.Mappers;
+using Ssera.Api.Ingestion.EventArchive.Mappers;
 using System.Globalization;
 
 namespace Ssera.Api.Ingestion;
@@ -34,7 +34,7 @@ public sealed class Worker(
         return Task.CompletedTask;
     }
 
-    public async Task StopAsync(CancellationToken cancellationToken) => 
+    public async Task StopAsync(CancellationToken cancellationToken) =>
         await _stoppingSource.CancelAsync();
 
     private async Task RunLoop()
@@ -88,7 +88,7 @@ public sealed class Worker(
 
         _logger.LogInformation("Received initial sheet");
 
-        List<EventSheetEvent> allEvents = [];
+        List<EventArchiveEntry> allEvents = [];
 
         foreach (var sheet in spreadsheet.Sheets)
         {
@@ -101,13 +101,13 @@ public sealed class Worker(
                 continue;
             }
 
-            if (!EventSheet.Names.HumanToEnum.TryGetValue(sheetName, out var sheetType))
+            if (!EventArchive.Names.HumanToEnum.TryGetValue(sheetName, out var sheetType))
             {
                 _logger.LogError("Sheet name {SheetName} could not be mapped to enum", sheetName);
                 continue;
             }
 
-            var mapper = scope.ServiceProvider.GetKeyedService<IEventSheetMapper>(sheetType.AsHuman());
+            var mapper = scope.ServiceProvider.GetKeyedService<IEventArchiveSheetMapper>(sheetType.AsHuman());
             if (mapper is null)
             {
                 _logger.LogError("No mapper registered for sheet {SheetType}", sheetType);
@@ -130,7 +130,7 @@ public sealed class Worker(
 
             var events = mapper
                 .ParseEvents(sheetData)
-                .Select(ev => EventSheetEvent.CreateNew(
+                .Select(ev => EventArchiveEntry.CreateNew(
                     DateTime.SpecifyKind(ev.Date, DateTimeKind.Utc), sheetType, ev.Title, ev.Link));
 
             allEvents.AddRange(events);
@@ -156,8 +156,8 @@ public sealed class Worker(
         bool success;
         await using (var transaction = await dbContext.Database.BeginTransactionAsync(token))
         {
-            _ = await dbContext.EventSheetEvents.ExecuteDeleteAsync(token);
-            await dbContext.EventSheetEvents.AddRangeAsync(allEvents, token);
+            _ = await dbContext.EventArchive.ExecuteDeleteAsync(token);
+            await dbContext.EventArchive.AddRangeAsync(allEvents, token);
             _ = await dbContext.SaveChangesAsync(token);
 
             try

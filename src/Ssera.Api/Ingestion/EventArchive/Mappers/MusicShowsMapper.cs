@@ -1,9 +1,10 @@
 using Google.Apis.Sheets.v4.Data;
+using Ssera.Api.Ingestion.Archive.Mappers;
 using System.Diagnostics;
 
-namespace Ssera.Api.Ingestion.Archive.Mappers;
+namespace Ssera.Api.Ingestion.EventArchive.Mappers;
 
-public sealed class MusicShowsMapper : IEventSheetMapper
+public sealed class MusicShowsMapper : IEventArchiveSheetMapper
 {
     private static class Columns
     {

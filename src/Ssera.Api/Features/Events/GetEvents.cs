@@ -37,12 +37,12 @@ public sealed partial class GetEvents
         ApiDbContext dbContext,
         CancellationToken token)
     {
-        var query = dbContext.EventSheetEvents.AsQueryable();
+        var query = dbContext.EventArchive.AsQueryable();
 
         if (requestQuery.EventTypes is { Length: > 0 })
         {
             // all valid api event types SHOULD be valid database event types
-            var types = requestQuery.EventTypes.Where(Enum.IsDefined).Cast<EventSheetEventKind>().ToArray();
+            var types = requestQuery.EventTypes.Where(Enum.IsDefined).Cast<EventArchiveEventKid>().ToArray();
             query = query.Where(m => types.Contains(m.Type));
         }
 
