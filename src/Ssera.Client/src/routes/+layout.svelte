@@ -5,7 +5,8 @@
 <div id="container">
 	<nav>
 		<a href="/">Home</a>
-		<a href="/list">List</a>
+		<a href="/list">Events</a>
+		<a href="/gallery">Gallery</a>
 		<a href="/history">History</a>
 	</nav>
 	<main>

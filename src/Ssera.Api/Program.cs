@@ -27,7 +27,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
 
 //builder.Services.AddHostedService<EventArchiveWorker>();
-builder.Services.AddHostedService<ImageArchiveWorker>();
+//builder.Services.AddHostedService<ImageArchiveWorker>();
 
 builder.Services.AddSwagger();
 
@@ -65,7 +65,7 @@ app.MapSseraApiEndpoints();
 await using (var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateAsyncScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
-    _ = await dbContext.Database.EnsureDeletedAsync();
+    //_ = await dbContext.Database.EnsureDeletedAsync();
     await dbContext.Database.MigrateAsync();
 }
 

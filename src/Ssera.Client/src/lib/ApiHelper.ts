@@ -1,5 +1,5 @@
 import { ApiDomain as ConstApiDomain } from "$lib/const/ApiDomain";
 
-export module ApiHelper {
+export namespace ApiHelper {
 	export const ApiDomain = ConstApiDomain;
 }

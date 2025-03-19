@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 namespace Ssera.Api.Data;
 
 public sealed class ImageArchiveEntry
@@ -7,7 +10,7 @@ public sealed class ImageArchiveEntry
     public GroupMember Member { get; private set; }
     public ImageArchive.TopLevelKind TopLevelKind { get; private set; }
     public DateTime Date { get; private set; }
-    public ICollection<string> Tags { get; private set; } = null!;
+    public ICollection<ImageArchiveTag> Tags { get; private set; } = null!;
 
     private ImageArchiveEntry() { }
 
@@ -16,7 +19,7 @@ public sealed class ImageArchiveEntry
         GroupMember member,
         ImageArchive.TopLevelKind topLevelKind,
         DateTime date,
-        IEnumerable<string> tags)
+        IEnumerable<ImageArchiveTag> tags)
     {
         ArgumentException.ThrowIfNullOrEmpty(fileId);
 
@@ -29,4 +32,13 @@ public sealed class ImageArchiveEntry
             Tags = [.. tags]
         };
     }
+
+    //private sealed class Configuration : IEntityTypeConfiguration<ImageArchiveEntry>
+    //{
+    //    public void Configure(EntityTypeBuilder<ImageArchiveEntry> builder)
+    //    {
+    //        builder.Property(p => p.Tags)
+    //            .
+    //    }
+    //}
 }

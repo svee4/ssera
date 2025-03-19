@@ -11,7 +11,6 @@ namespace Ssera.Api.Features.Events;
 [MapGet("/api/events")]
 public sealed partial class GetEvents
 {
-
     [Validate]
     public sealed partial record Query : IValidationTarget<Query>
     {

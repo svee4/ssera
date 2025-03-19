@@ -1,6 +1,6 @@
 import { ApiHelper } from "$lib/ApiHelper";
 
-export module EventsApiHelper {
+export namespace EventsApiHelper {
 
 	// objects are organized so that the key is the api value and the value is the human readable value
 	

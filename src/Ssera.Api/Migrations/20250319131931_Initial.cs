@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Ssera.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -37,8 +37,7 @@ namespace Ssera.Api.Migrations
                     FileId = table.Column<string>(type: "TEXT", nullable: false),
                     Member = table.Column<int>(type: "INTEGER", nullable: false),
                     TopLevelKind = table.Column<int>(type: "INTEGER", nullable: false),
-                    Date = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Tags = table.Column<string>(type: "TEXT", nullable: false)
+                    Date = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -60,6 +59,25 @@ namespace Ssera.Api.Migrations
                     table.PrimaryKey("PK_WorkerHistory", x => x.Id);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "ImageArchiveTag",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Tag = table.Column<string>(type: "TEXT", nullable: false),
+                    ImageArchiveEntryId = table.Column<int>(type: "INTEGER", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ImageArchiveTag", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ImageArchiveTag_ImageArchive_ImageArchiveEntryId",
+                        column: x => x.ImageArchiveEntryId,
+                        principalTable: "ImageArchive",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_EventArchive_Date",
                 table: "EventArchive",
@@ -76,6 +94,11 @@ namespace Ssera.Api.Migrations
                 column: "Type");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ImageArchiveTag_ImageArchiveEntryId",
+                table: "ImageArchiveTag",
+                column: "ImageArchiveEntryId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_WorkerHistory_Timestamp",
                 table: "WorkerHistory",
                 column: "Timestamp");
@@ -88,10 +111,13 @@ namespace Ssera.Api.Migrations
                 name: "EventArchive");
 
             migrationBuilder.DropTable(
-                name: "ImageArchive");
+                name: "ImageArchiveTag");
 
             migrationBuilder.DropTable(
                 name: "WorkerHistory");
+
+            migrationBuilder.DropTable(
+                name: "ImageArchive");
         }
     }
 }

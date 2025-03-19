@@ -1,6 +1,6 @@
 import { ApiHelper } from "$lib/ApiHelper";
 
-export module HistoryApiHelper {
+export namespace HistoryApiHelper {
 
 	export const ApiRoute = `${ApiHelper.ApiDomain}/api/history` as const;
 

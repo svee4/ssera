@@ -157,7 +157,9 @@ public sealed partial class ImageArchiveWorker(
                             archiveEntry.Member,
                             topLevelEntry.Kind,
                             subLevelEntry.Date,
-                            [subLevelEntry.Name, .. entry.Tags]));
+                            [
+                                ImageArchiveTag.Create(subLevelEntry.Name), 
+                                .. entry.Tags.Select(ImageArchiveTag.Create)]));
                     }
                 }
             }

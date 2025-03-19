@@ -11,8 +11,8 @@ using Ssera.Api.Data;
 namespace Ssera.Api.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20250319114544_init")]
-    partial class init
+    [Migration("20250319131931_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -68,16 +68,32 @@ namespace Ssera.Api.Migrations
                     b.Property<int>("Member")
                         .HasColumnType("INTEGER");
 
-                    b.PrimitiveCollection<string>("Tags")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("TopLevelKind")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
                     b.ToTable("ImageArchive");
+                });
+
+            modelBuilder.Entity("Ssera.Api.Data.ImageArchiveTag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ImageArchiveEntryId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Tag")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ImageArchiveEntryId");
+
+                    b.ToTable("ImageArchiveTag");
                 });
 
             modelBuilder.Entity("Ssera.Api.Data.WorkerHistory", b =>
@@ -102,6 +118,18 @@ namespace Ssera.Api.Migrations
                     b.HasIndex("Timestamp");
 
                     b.ToTable("WorkerHistory");
+                });
+
+            modelBuilder.Entity("Ssera.Api.Data.ImageArchiveTag", b =>
+                {
+                    b.HasOne("Ssera.Api.Data.ImageArchiveEntry", null)
+                        .WithMany("Tags")
+                        .HasForeignKey("ImageArchiveEntryId");
+                });
+
+            modelBuilder.Entity("Ssera.Api.Data.ImageArchiveEntry", b =>
+                {
+                    b.Navigation("Tags");
                 });
 #pragma warning restore 612, 618
         }
