@@ -1,8 +1,6 @@
 using Immediate.Apis.Shared;
 using Immediate.Handlers.Shared;
-using Microsoft.EntityFrameworkCore;
 using Ssera.Api.Data;
-using System.Globalization;
 
 namespace Ssera.Api.Features.History;
 
@@ -17,15 +15,15 @@ public sealed partial class GetHistory
         ApiDbContext dbContext,
         CancellationToken token
     ) => throw new NotImplementedException();
-        //await dbContext.WorkerHistory
-        //    .OrderByDescending(m => m.Timestamp)
-        //    .Take(50)
-        //    .Select(m => new HistoryModel(
-        //        m.CreatedUtc,
-        //        m.TotalEvents,
-        //        m.TimeTaken.ToString("hh':'mm':'ss", CultureInfo.InvariantCulture),
-        //        m.Message))
-        //    .ToListAsync(token);
+    //await dbContext.WorkerHistory
+    //    .OrderByDescending(m => m.Timestamp)
+    //    .Take(50)
+    //    .Select(m => new HistoryModel(
+    //        m.CreatedUtc,
+    //        m.TotalEvents,
+    //        m.TimeTaken.ToString("hh':'mm':'ss", CultureInfo.InvariantCulture),
+    //        m.Message))
+    //    .ToListAsync(token);
 
     // TODO figure out home timespans work in javascript
     public sealed record HistoryModel(DateTime Date, int TotalEvents, string TimeTaken, string? Message);

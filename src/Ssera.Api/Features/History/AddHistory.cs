@@ -8,7 +8,7 @@ namespace Ssera.Api.Features.History;
 public sealed partial class AddHistory
 {
     [Validate]
-    public sealed partial record Command(string WorkerName, string Message) 
+    public sealed partial record Command(string WorkerName, string Message)
         : IValidationTarget<Command>;
 
     /// <summary>

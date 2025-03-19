@@ -1,12 +1,10 @@
 using Google.Apis.Drive.v3;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 using Ssera.Api.Data;
 using Ssera.Api.Features.History;
 using Ssera.Api.Infra.Configuration;
 using System.Collections.Immutable;
 using System.Globalization;
-using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 using static Ssera.Api.Data.ImageArchive;

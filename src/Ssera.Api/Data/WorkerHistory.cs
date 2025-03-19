@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Ssera.Api.Data;
 
@@ -20,7 +19,7 @@ public sealed class WorkerHistory
         string message)
     {
         ArgumentException.ThrowIfNullOrEmpty(workerName);
-        
+
         return new WorkerHistory
         {
             WorkerName = workerName,

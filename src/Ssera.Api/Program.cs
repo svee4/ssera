@@ -7,7 +7,6 @@ using Ssera.Api.Data;
 using Ssera.Api.Infra.Configuration;
 using Ssera.Api.Infra.ProblemDetailsHandler;
 using Ssera.Api.Infra.Startup;
-using Ssera.Api.Ingestion.EventArchive;
 using Ssera.Api.Ingestion.EventArchive.Mappers;
 using Ssera.Api.Ingestion.ImageArchive;
 
@@ -66,7 +65,7 @@ app.MapSseraApiEndpoints();
 await using (var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateAsyncScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
-    await dbContext.Database.EnsureDeletedAsync();
+    _ = await dbContext.Database.EnsureDeletedAsync();
     await dbContext.Database.MigrateAsync();
 }
 
