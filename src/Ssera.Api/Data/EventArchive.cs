@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Ssera.Api.Data;
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]
-public enum EventArchiveEventKid
+public enum EventArchiveEventKind
 {
     TeasersMV = 1,
     Performance,
@@ -22,41 +22,41 @@ public enum EventArchiveEventKid
 public static class EventArchive
 {
 
-    public static string AsHuman(this EventArchiveEventKid eventType) =>
+    public static string AsHuman(this EventArchiveEventKind eventType) =>
         Names.EnumToHuman.TryGetValue(eventType, out var result)
         ? result
-        : throw new ArgumentException($"Invalid {nameof(EventArchiveEventKid)}: {eventType}");
+        : throw new ArgumentException($"Invalid {nameof(EventArchiveEventKind)}: {eventType}");
 
     public static class Names
     {
-        public static FrozenDictionary<string, EventArchiveEventKid> HumanToEnum { get; } = new Dictionary<string, EventArchiveEventKid>
+        public static FrozenDictionary<string, EventArchiveEventKind> HumanToEnum { get; } = new Dictionary<string, EventArchiveEventKind>
         {
-            { "Teasers/MV", EventArchiveEventKid.TeasersMV },
-            { "Performance", EventArchiveEventKid.Performance },
-            { "Music Shows", EventArchiveEventKid.MusicShows },
-            { "Behind The Scene", EventArchiveEventKid.BehindTheScenes },
-            { "Interview", EventArchiveEventKid.Interview },
-            { "Variety", EventArchiveEventKid.Variety },
-            { "Reality", EventArchiveEventKid.Reality },
-            { "CF", EventArchiveEventKid.CF },
-            { "Misc", EventArchiveEventKid.Misc },
-            { "Mubank President", EventArchiveEventKid.MubankPresident },
-            { "Weverse Live", EventArchiveEventKid.WeverseLive },
+            { "Teasers/MV", EventArchiveEventKind.TeasersMV },
+            { "Performance", EventArchiveEventKind.Performance },
+            { "Music Shows", EventArchiveEventKind.MusicShows },
+            { "Behind The Scene", EventArchiveEventKind.BehindTheScenes },
+            { "Interview", EventArchiveEventKind.Interview },
+            { "Variety", EventArchiveEventKind.Variety },
+            { "Reality", EventArchiveEventKind.Reality },
+            { "CF", EventArchiveEventKind.CF },
+            { "Misc", EventArchiveEventKind.Misc },
+            { "Mubank President", EventArchiveEventKind.MubankPresident },
+            { "Weverse Live", EventArchiveEventKind.WeverseLive },
         }.ToFrozenDictionary();
 
-        public static FrozenDictionary<EventArchiveEventKid, string> EnumToHuman { get; } = new Dictionary<EventArchiveEventKid, string>
+        public static FrozenDictionary<EventArchiveEventKind, string> EnumToHuman { get; } = new Dictionary<EventArchiveEventKind, string>
         {
-            { EventArchiveEventKid.TeasersMV, "Teasers/MV" },
-            { EventArchiveEventKid.Performance, "Performance" },
-            { EventArchiveEventKid.MusicShows, "Music Shows" },
-            { EventArchiveEventKid.BehindTheScenes, "Behind The Scene" },
-            { EventArchiveEventKid.Interview, "Interview" },
-            { EventArchiveEventKid.Variety, "Variety" },
-            { EventArchiveEventKid.Reality, "Reality" },
-            { EventArchiveEventKid.CF, "CF" },
-            { EventArchiveEventKid.Misc, "Misc" },
-            { EventArchiveEventKid.MubankPresident, "Mubank President" },
-            { EventArchiveEventKid.WeverseLive, "Weverse Live" },
+            { EventArchiveEventKind.TeasersMV, "Teasers/MV" },
+            { EventArchiveEventKind.Performance, "Performance" },
+            { EventArchiveEventKind.MusicShows, "Music Shows" },
+            { EventArchiveEventKind.BehindTheScenes, "Behind The Scene" },
+            { EventArchiveEventKind.Interview, "Interview" },
+            { EventArchiveEventKind.Variety, "Variety" },
+            { EventArchiveEventKind.Reality, "Reality" },
+            { EventArchiveEventKind.CF, "CF" },
+            { EventArchiveEventKind.Misc, "Misc" },
+            { EventArchiveEventKind.MubankPresident, "Mubank President" },
+            { EventArchiveEventKind.WeverseLive, "Weverse Live" },
         }.ToFrozenDictionary();
     }
 }

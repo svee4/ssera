@@ -1,32 +1,21 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Ssera.Api.Data;
 
-[SuppressMessage("ReSharper", "EntityFramework.ModelValidation.UnlimitedStringLength",
-    Justification = "Not possible in Sqlite")]
 public sealed class EventArchiveEntry
 {
     public int Id { get; set; }
     public required DateTime Date { get; set; }
-    public required EventArchiveEventKid Type { get; set; }
+    public required EventArchiveEventKind Type { get; set; }
     public required string? Title { get; set; }
     public required string? Link { get; set; }
     public required DateTime CreatedUtc { get; set; }
 
     private EventArchiveEntry() { }
 
-    /// <summary>
-    /// date.Kind must be UTC even if the value itself is not UTC
-    /// </summary>
-    public static EventArchiveEntry CreateNew(DateTime date, EventArchiveEventKid type, string? title, string? link)
+    public static EventArchiveEntry CreateNew(DateTime date, EventArchiveEventKind type, string? title, string? link)
     {
-        if (date.Kind != DateTimeKind.Utc)
-        {
-            throw new ArgumentException("DateTime.Kind must be DateTimeKind.Utc", nameof(date));
-        }
-
         if (string.IsNullOrWhiteSpace(title) && string.IsNullOrWhiteSpace(link))
         {
             var message = $"Both {nameof(Title)} and {nameof(Link)} cannot be null or empty, only one may";
@@ -35,7 +24,7 @@ public sealed class EventArchiveEntry
 
         return new EventArchiveEntry
         {
-            Date = date,
+            Date = DateTime.SpecifyKind(date, DateTimeKind.Utc),
             Type = type,
             Title = title,
             Link = link,

@@ -42,7 +42,7 @@ public sealed partial class GetEvents
         if (requestQuery.EventTypes is { Length: > 0 })
         {
             // all valid api event types SHOULD be valid database event types
-            var types = requestQuery.EventTypes.Where(Enum.IsDefined).Cast<EventArchiveEventKid>().ToArray();
+            var types = requestQuery.EventTypes.Where(Enum.IsDefined).Cast<EventArchiveEventKind>().ToArray();
             query = query.Where(m => types.Contains(m.Type));
         }
 
@@ -84,7 +84,7 @@ public sealed partial class GetEvents
                 .ToListAsync(token);
 
         var lastUpdate = await dbContext.WorkerHistory
-            .Select(entry => entry.CreatedUtc)
+            .Select(entry => entry.Timestamp)
             .OrderByDescending(date => date)
             .FirstOrDefaultAsync(token);
 

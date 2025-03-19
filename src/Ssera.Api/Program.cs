@@ -7,8 +7,9 @@ using Ssera.Api.Data;
 using Ssera.Api.Infra.Configuration;
 using Ssera.Api.Infra.ProblemDetailsHandler;
 using Ssera.Api.Infra.Startup;
-using Ssera.Api.Ingestion;
+using Ssera.Api.Ingestion.EventArchive;
 using Ssera.Api.Ingestion.EventArchive.Mappers;
+using Ssera.Api.Ingestion.ImageArchive;
 
 [assembly: Behaviors(typeof(ValidationBehavior<,>))]
 
@@ -26,21 +27,22 @@ builder.Services.AddCors();
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
 
-builder.Services.AddHostedService<Worker>();
+//builder.Services.AddHostedService<EventArchiveWorker>();
+builder.Services.AddHostedService<ImageArchiveWorker>();
 
 builder.Services.AddSwagger();
 
-builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, DefaultMapper>(EventArchiveEventKid.TeasersMV.AsHuman());
-builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, PerformanceVarietyRealityMapper>(EventArchiveEventKid.Performance.AsHuman());
-builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, MusicShowsMapper>(EventArchiveEventKid.MusicShows.AsHuman());
-builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, DefaultMapper>(EventArchiveEventKid.BehindTheScenes.AsHuman());
-builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, DefaultMapper>(EventArchiveEventKid.Interview.AsHuman());
-builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, PerformanceVarietyRealityMapper>(EventArchiveEventKid.Variety.AsHuman());
-builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, PerformanceVarietyRealityMapper>(EventArchiveEventKid.Reality.AsHuman());
-builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, CFMapper>(EventArchiveEventKid.CF.AsHuman());
-builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, DefaultMapper>(EventArchiveEventKid.Misc.AsHuman());
-builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, DefaultMapper>(EventArchiveEventKid.MubankPresident.AsHuman());
-builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, WeverseMapper>(EventArchiveEventKid.WeverseLive.AsHuman());
+builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, DefaultMapper>(EventArchiveEventKind.TeasersMV.AsHuman());
+builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, PerformanceVarietyRealityMapper>(EventArchiveEventKind.Performance.AsHuman());
+builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, MusicShowsMapper>(EventArchiveEventKind.MusicShows.AsHuman());
+builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, DefaultMapper>(EventArchiveEventKind.BehindTheScenes.AsHuman());
+builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, DefaultMapper>(EventArchiveEventKind.Interview.AsHuman());
+builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, PerformanceVarietyRealityMapper>(EventArchiveEventKind.Variety.AsHuman());
+builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, PerformanceVarietyRealityMapper>(EventArchiveEventKind.Reality.AsHuman());
+builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, CFMapper>(EventArchiveEventKind.CF.AsHuman());
+builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, DefaultMapper>(EventArchiveEventKind.Misc.AsHuman());
+builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, DefaultMapper>(EventArchiveEventKind.MubankPresident.AsHuman());
+builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, WeverseMapper>(EventArchiveEventKind.WeverseLive.AsHuman());
 
 var app = builder.Build();
 
@@ -64,6 +66,7 @@ app.MapSseraApiEndpoints();
 await using (var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateAsyncScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+    await dbContext.Database.EnsureDeletedAsync();
     await dbContext.Database.MigrateAsync();
 }
 

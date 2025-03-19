@@ -7,12 +7,12 @@ using Ssera.Api.Infra.Configuration;
 using Ssera.Api.Ingestion.EventArchive.Mappers;
 using System.Globalization;
 
-namespace Ssera.Api.Ingestion;
+namespace Ssera.Api.Ingestion.EventArchive;
 
-public sealed class Worker(
+public sealed class EventArchiveWorker(
     IServiceScopeFactory serviceScopeFactory,
     IConfiguration configuration,
-    ILogger<Worker> logger
+    ILogger<EventArchiveWorker> logger
 ) : IHostedService
 {
     private const string LeSserafimArchiveSpreadsheetId = "14NeZu0cI5Tkd8jkGuORRdukFtAtGPnNFUSzVoLZnZuc";
@@ -53,13 +53,9 @@ public sealed class Worker(
                 await using var scope = _serviceScopeFactory.CreateAsyncScope();
                 var addHistoryHandler = scope.ServiceProvider.GetRequiredService<AddHistory.Handler>();
 
-                if (!await addHistoryHandler.HandleAsync(
-                        new AddHistory.Command
-                        {
-                            TimeTaken = TimeSpan.Zero,
-                            TotalEvents = 0,
-                            Message = "Uncaught exception has terminated the worker service"
-                        }, token))
+                if (!await addHistoryHandler.HandleAsync(new AddHistory.Command(
+                    nameof(EventArchiveWorker),
+                    "Uncaught exception has terminated worker"), token))
                 {
                     _logger.LogError("Failed to add history entry");
                 }
@@ -81,7 +77,7 @@ public sealed class Worker(
         await using var scope = _serviceScopeFactory.CreateAsyncScope();
 
         using var service = new Google.Apis.Sheets.v4.SheetsService(
-                new BaseClientService.Initializer { ApiKey = _configuration.GetRequiredValue("SheetsApiKey") });
+                new BaseClientService.Initializer { ApiKey = _configuration.GetRequiredValue("GoogleApiKey") });
 
         var request = service.Spreadsheets.Get(LeSserafimArchiveSpreadsheetId);
         var spreadsheet = await request.ExecuteAsync(token);
@@ -101,7 +97,7 @@ public sealed class Worker(
                 continue;
             }
 
-            if (!EventArchive.Names.HumanToEnum.TryGetValue(sheetName, out var sheetType))
+            if (!Data.EventArchive.Names.HumanToEnum.TryGetValue(sheetName, out var sheetType))
             {
                 _logger.LogError("Sheet name {SheetName} could not be mapped to enum", sheetName);
                 continue;
@@ -130,8 +126,7 @@ public sealed class Worker(
 
             var events = mapper
                 .ParseEvents(sheetData)
-                .Select(ev => EventArchiveEntry.CreateNew(
-                    DateTime.SpecifyKind(ev.Date, DateTimeKind.Utc), sheetType, ev.Title, ev.Link));
+                .Select(ev => EventArchiveEntry.CreateNew(ev.Date, sheetType, ev.Title, ev.Link));
 
             allEvents.AddRange(events);
 
@@ -142,14 +137,6 @@ public sealed class Worker(
         _logger.LogInformation("Got all data, total row count of {RowCount}", allEvents.Count);
 
         token.ThrowIfCancellationRequested();
-
-        var dbFilename = _configuration.GetRequiredValue("SqliteFilename");
-        var backupDbFilename = _configuration.GetRequiredValue("BackupSqliteFilename");
-
-        _logger.LogInformation("Backing up sqlite from {SourceFilename} to {DestinationFilename}",
-            dbFilename, backupDbFilename);
-
-        File.Copy(dbFilename, backupDbFilename, true);
 
         await using var dbContext = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
 
@@ -181,8 +168,13 @@ public sealed class Worker(
         {
             _logger.LogInformation("Worker task completed succesfully");
 
+            var message = $"""
+Time taken: {timeTaken.ToString("mm':'ss", CultureInfo.InvariantCulture)}
+Total events: {allEvents.Count.ToString(CultureInfo.InvariantCulture)}
+""";
+
             if (!await addHistoryHandler.HandleAsync(
-                    new AddHistory.Command { TotalEvents = allEvents.Count, TimeTaken = timeTaken },
+                    new AddHistory.Command(nameof(EventArchiveWorker), message),
                     token))
             {
                 _logger.LogError("Failed to add history entry");
@@ -192,13 +184,14 @@ public sealed class Worker(
         {
             _logger.LogError("Worker task failed to complete successfully");
 
+            var message = $"""
+Time taken: {timeTaken.ToString("HH':'mm", CultureInfo.InvariantCulture)}
+Total events: {allEvents.Count.ToString(CultureInfo.InvariantCulture)}
+Task failed to complete succesfully
+""";
+
             if (!await addHistoryHandler.HandleAsync(
-                    new AddHistory.Command
-                    {
-                        TimeTaken = timeTaken,
-                        TotalEvents = 0,
-                        Message = "Task failed"
-                    },
+                    new AddHistory.Command(nameof(EventArchiveWorker), message),
                     token))
             {
                 _logger.LogError("Failed to add history entry");

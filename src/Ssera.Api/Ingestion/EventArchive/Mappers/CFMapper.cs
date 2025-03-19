@@ -60,7 +60,7 @@ public sealed class CFMapper(ILogger<CFMapper> logger) : IEventArchiveSheetMappe
                     else
                     {
                         MappingExtensions.LogInvalidDateFormat(_logger,
-                            EventArchiveEventKid.CF.AsHuman(), dateString, rowIndex);
+                            EventArchiveEventKind.CF.AsHuman(), dateString, rowIndex);
                         date = previousDate;
                     }
                 }

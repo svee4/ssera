@@ -11,16 +11,16 @@ using Ssera.Api.Data;
 namespace Ssera.Api.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20250312144425_Initial")]
-    partial class Initial
+    [Migration("20250319114544_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.6");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.3");
 
-            modelBuilder.Entity("Ssera.Api.Data.EventSheetEvent", b =>
+            modelBuilder.Entity("Ssera.Api.Data.EventArchiveEntry", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -43,7 +43,41 @@ namespace Ssera.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EventSheetEvents");
+                    b.HasIndex("Date");
+
+                    b.HasIndex("Title");
+
+                    b.HasIndex("Type");
+
+                    b.ToTable("EventArchive");
+                });
+
+            modelBuilder.Entity("Ssera.Api.Data.ImageArchiveEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FileId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Member")
+                        .HasColumnType("INTEGER");
+
+                    b.PrimitiveCollection<string>("Tags")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TopLevelKind")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ImageArchive");
                 });
 
             modelBuilder.Entity("Ssera.Api.Data.WorkerHistory", b =>
@@ -52,19 +86,20 @@ namespace Ssera.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("CreatedUtc")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Message")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<TimeSpan>("TimeTaken")
+                    b.Property<DateTime>("Timestamp")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("TotalEvents")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("WorkerName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Timestamp");
 
                     b.ToTable("WorkerHistory");
                 });
