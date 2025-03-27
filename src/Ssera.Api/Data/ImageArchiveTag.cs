@@ -1,5 +1,7 @@
 namespace Ssera.Api.Data;
 
+// tag has to be a separate entity
+// otherwise sqlite explodes trying to do the queries we need
 public sealed class ImageArchiveTag
 {
     public int Id { get; private set; }

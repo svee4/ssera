@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <NoWarn>$(NoWarn);CA2007;CA1308</NoWarn>
+        <NoWarn>$(NoWarn);CA2007;CA1308;CA1062</NoWarn>
         <UserSecretsId>7b8d7de1-4701-4e3e-af1d-3b3dd84c4afe</UserSecretsId>
     </PropertyGroup>
 
@@ -14,7 +14,7 @@
         <PackageReference Include="Google.Apis.Drive.v3" Version="1.69.0.3703" />
 
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="7.3.1" />
+        <PackageReference Include="Scalar.AspNetCore" Version="2.1.2" />
 
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.3" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.3" />

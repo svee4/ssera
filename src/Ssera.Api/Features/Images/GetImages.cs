@@ -60,18 +60,18 @@ public sealed partial class GetImages
         }
 
         var isDescending = request.Sort == SortType.Descending;
-        //var orderedQuery = (request.OrderBy, isDescending) switch
-        //{
-        //    //(OrderByType.Date, true) => query.OrderByDescending(entry => entry.Date),
-        //    //(OrderByType.Date, false) => query.OrderBy(entry => entry.Date),
-        //    //(OrderByType.FirstTag, true) => query.OrderByDescending(entry => entry.Tags.FirstOrDefault()),
-        //    //(OrderByType.FirstTag, false) => query.OrderBy(entry => entry.Tags.FirstOrDefault()),
-        //    _ => null
-        //};
+        var orderedQuery = (request.OrderBy, isDescending) switch
+        {
+            (OrderByType.Date, true) => query.OrderByDescending(entry => entry.Date),
+            (OrderByType.Date, false) => query.OrderBy(entry => entry.Date),
+            (OrderByType.FirstTag, true) => query.OrderByDescending(entry => entry.Tags.FirstOrDefault()),
+            (OrderByType.FirstTag, false) => query.OrderBy(entry => entry.Tags.FirstOrDefault()),
+            _ => null
+        };
 
-        //query = orderedQuery is not null
-        //    ? orderedQuery.ThenByDescending(entry => entry.Id)
-        //    : query.OrderByDescending(entry => entry.Id);
+        query = orderedQuery is not null
+            ? orderedQuery.ThenByDescending(entry => entry.Id)
+            : query.OrderByDescending(entry => entry.Id);
 
 
         query = query.Take(request.PageSize);
@@ -84,10 +84,11 @@ public sealed partial class GetImages
         }
 
         var resultsQuery = query.Select(entry => new Result(
-            entry.FileId,
-            entry.Member,
-            0,
-            entry.Tags.Select(t => t.Tag).ToList()));
+                entry.FileId,
+                entry.Member,
+                TopLevelKindToEra(entry.TopLevelKind),
+                entry.Tags.Select(t => t.Tag)
+            .ToList()));
 
         var results = await resultsQuery.ToListAsync(token);
         return new Response(results);
