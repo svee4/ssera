@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Diagnostics;
 
 namespace Ssera.Api.Infra.ExceptionHandling;

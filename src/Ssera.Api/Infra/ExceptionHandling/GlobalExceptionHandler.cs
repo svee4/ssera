@@ -14,7 +14,7 @@ public sealed class GlobalExceptionHandler(
         Exception exception,
         CancellationToken token)
     {
-        _logger.LogError("Unhandled exception for '{TraceId}':\n{Exception}", context.TraceIdentifier, exception);
+        _logger.LogError("Unhandled exception for '{TraceId}': {Exception}", context.TraceIdentifier, exception);
         return Task.FromResult(new ProblemDetails
         {
             Status = 500,

@@ -1,11 +1,8 @@
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reflection;
-using System.Threading;
 
 namespace Ssera.Api.Infra.ExceptionHandling;
 
@@ -91,6 +88,7 @@ public sealed class ExceptionHandlerMiddleware(
         CancellationToken token) where TException : Exception
     {
         var handler = _serviceProvider.GetService<IProblemDetailsExceptionHandler<TException>>();
+
         var task = handler is not null
             ? handler.Handle(context, exception, token)
             : _globalHandler.Handle(context, exception, token);

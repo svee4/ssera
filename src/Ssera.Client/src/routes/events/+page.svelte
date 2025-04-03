@@ -122,7 +122,7 @@
 </script>
 
 <svelte:head>
-	<title>List</title>
+	<title>Events</title>
 </svelte:head>
 
 <ListFilters
