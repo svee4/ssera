@@ -139,11 +139,6 @@
 	{#await response}
 		<p>Loading...</p>
 	{:then data}
-		{#if data.lastUpdate}
-			<p>Last import: {new Date(data.lastUpdate).toLocaleString()}</p>
-		{:else}
-			<p>Last import: {"<"}no data{">"}</p>
-		{/if}
 		<div id="data-container">
 			<PagingDisplay
 				pageNumber={activeFilters.pageNumber}
@@ -196,7 +191,7 @@
 							</td>
 							<td class="col-link">
 								{#if event.link === null}
-									<a href="#">No link</a>
+									<span>-</span>
 								{:else}
 									<a href={event.link}>Link</a>
 								{/if}

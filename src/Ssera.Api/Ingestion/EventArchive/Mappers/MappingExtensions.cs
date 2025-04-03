@@ -7,6 +7,14 @@ namespace Ssera.Api.Ingestion.Archive.Mappers;
 public static partial class MappingExtensions
 {
     /// <summary>
+    /// Returns null if <paramref name="s"/> is null or empty, otherwise <paramref name="s"/>
+    /// </summary>
+    /// <param name="s"></param>
+    /// <returns></returns>
+    public static string? Normalized(this string? s) =>
+        string.IsNullOrWhiteSpace(s) ? null : s;
+
+    /// <summary>
     /// Normalized empty or whitespace strings to null
     /// </summary>
     /// <param name="rowData"></param>
@@ -16,7 +24,7 @@ public static partial class MappingExtensions
     {
         ArgumentNullException.ThrowIfNull(rowData);
         var row = rowData.Values[columnIndex]?.EffectiveValue?.StringValue; // this library has not null ref types anywhere btw
-        return string.IsNullOrWhiteSpace(row) ? null : row;
+        return Normalized(row);
     }
 
     /// <summary>

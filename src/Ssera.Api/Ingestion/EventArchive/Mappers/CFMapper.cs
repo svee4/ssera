@@ -18,6 +18,7 @@ public sealed class CFMapper(ILogger<CFMapper> logger) : IEventArchiveSheetMappe
         public static int Title => 3;
         public static int Members => 4;
         public static int Link => 5;
+        public static int Hyperlink = 6;
     };
 
     public IEnumerable<Event> ParseEvents(Sheet sheet)
@@ -33,7 +34,9 @@ public sealed class CFMapper(ILogger<CFMapper> logger) : IEventArchiveSheetMappe
             var previousDate = DateTime.MinValue;
             foreach (var (rowIndex, row) in data.RowData.Skip(2).Index())
             {
-                var link = row.GetNormalizedColumnValue(Columns.Link);
+                var link = row.GetNormalizedColumnValue(Columns.Link)
+                    ?? row.Values[Columns.Hyperlink].Hyperlink.Normalized();
+
                 var title = row.GetNormalizedColumnValue(Columns.Title);
                 var cfType = row.GetNormalizedColumnValue(Columns.CFType);
                 var members = row.GetNormalizedColumnValue(Columns.Members);

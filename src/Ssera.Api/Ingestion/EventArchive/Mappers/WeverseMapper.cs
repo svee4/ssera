@@ -4,14 +4,6 @@ namespace Ssera.Api.Ingestion.EventArchive.Mappers;
 
 public sealed class WeverseMapper : IEventArchiveSheetMapper
 {
-    private static class Columns
-    {
-        public static int Date => 1;
-        public static int Series => 2;
-        public static int Title => 3;
-        public static int Link => 4;
-    }
-
     public IEnumerable<Event> ParseEvents(Sheet sheet)
     {
         ArgumentNullException.ThrowIfNull(sheet);

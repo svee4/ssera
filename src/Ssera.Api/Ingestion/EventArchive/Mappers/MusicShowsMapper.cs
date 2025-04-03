@@ -12,6 +12,7 @@ public sealed class MusicShowsMapper : IEventArchiveSheetMapper
         public static int Show => 2;
         public static int Song => 3;
         public static int Link => 4;
+        public static int Hyperlink => 5;
         public static int Remarks => 6;
     }
 
@@ -30,6 +31,7 @@ public sealed class MusicShowsMapper : IEventArchiveSheetMapper
             {
                 DateColumn = Columns.Date,
                 LinkColumn = Columns.Link,
+                HyperlinkColumn = Columns.Hyperlink,
                 TitleMapper = row =>
                 {
                     if (!row.TryGetColumnValue(Columns.Song, out var song))

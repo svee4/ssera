@@ -12,6 +12,7 @@ public sealed class PerformanceVarietyRealityMapper : IEventArchiveSheetMapper
         public static int Series => 2;
         public static int Title => 3;
         public static int Link => 4;
+        public static int Hyperlink => 5;
     }
 
     public IEnumerable<Event> ParseEvents(Sheet sheet)
@@ -23,6 +24,7 @@ public sealed class PerformanceVarietyRealityMapper : IEventArchiveSheetMapper
         {
             DateColumn = Columns.Date,
             LinkColumn = Columns.Link,
+            HyperlinkColumn = Columns.Hyperlink,
             TitleMapper = row =>
             {
                 if (!row.TryGetColumnValue(Columns.Title, out var title))
