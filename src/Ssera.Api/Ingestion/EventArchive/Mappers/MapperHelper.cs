@@ -25,7 +25,7 @@ public sealed class MapperHelper
 
         IEnumerable<Row> Core()
         {
-            var previousDate = DateTime.MinValue;
+            var previousDate = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
             foreach (var row in rows.Skip(SkipRows))
             {
                 var title = TitleMapper(row);
@@ -38,7 +38,7 @@ public sealed class MapperHelper
                 }
 
                 var date = row.TryGetColumnValueAsDate(DateColumn, out var curDate)
-                    ? previousDate = curDate
+                    ? previousDate = DateTime.SpecifyKind(curDate, DateTimeKind.Utc)
                     : previousDate;
 
                 yield return new Row(date, title, link);

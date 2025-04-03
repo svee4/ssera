@@ -8,7 +8,7 @@ partial class GetImages
     public enum OrderByType
     {
         Date = 1,
-        FirstTag,
+        Tags,
     }
 
     [JsonConverter(typeof(JsonStringEnumConverter<SortType>))]

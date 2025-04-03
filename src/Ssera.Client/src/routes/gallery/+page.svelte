@@ -13,8 +13,9 @@
         tagSearch: string;
         eras: ImageApiHelper.Era[];
         members: ImageApiHelper.GroupMember[];
+
         orderBy: ImageApiHelper.OrderByType;
-        sortBy: ImageApiHelper.SortType;
+        sort: ImageApiHelper.SortType;
         pageSize: number;
         page: number;
     }
@@ -26,14 +27,38 @@
         members: [],
 
         orderBy: 0,
-        sortBy: 0,
+        sort: 0,
         pageSize: 0,
         page: 1
     });
 
     const fetchEntries = async () => {
         loading = true;
-        const response = await fetch(ImageApiHelper.ApiRoute + "?page=1&pageSize=50");
+
+        let q = new URLSearchParams();
+        
+        for (const tag in filters.tags) {
+            q.append("tags", tag);
+        }
+
+        if (filters.tagSearch) {
+            q.append("tagSearch", filters.tagSearch);
+        }
+
+        for (const era of filters.eras) {
+            q.append("eras", ImageApiHelper.Era[era]);
+        }
+
+        for (const mem of filters.members) {
+            q.append("members", ImageApiHelper.GroupMember[mem]);
+        }
+
+        q.append("orderBy", ImageApiHelper.OrderByType[filters.orderBy]);
+        q.append("sort", ImageApiHelper.SortType[filters.sort]);
+        q.append("pageSize", filters.pageSize.toString());
+        q.append("page", filters.page.toString());
+
+        const response = await fetch(ImageApiHelper.ApiRoute + "?" + q.toString());
 
         if (!response.ok) {
             console.error(await response.json());
@@ -44,8 +69,8 @@
         entries = (await response.json() as ImageApiHelper.GetResponse).results
             .map(res => {
                 let tags = res.tags;
-                if (res.era) tags = [ImageApiHelper.EraToHuman(res.era), ...tags];
-                return { id: res.id, tags };
+                if (res.era) tags = [res.era, ...tags];
+                return { id: res.id, tags, date: new Date(res.date) };
             })
 
         loading = false;
@@ -63,13 +88,13 @@
 <div id="page">
     <!-- nope, no fucking spread here -->
     <Filters
-        tags={filters.tags}
-        tagSearch={filters.tagSearch}
-        eras={filters.eras}
-        members={filters.members}
-        orderBy={filters.orderBy}
-        sortBy={filters.sortBy}
-        pageSize={filters.pageSize}
+        bind:tags={filters.tags}
+        bind:tagSearch={filters.tagSearch}
+        bind:eras={filters.eras}
+        bind:members={filters.members}
+        bind:orderBy={filters.orderBy}
+        bind:sort={filters.sort}
+        bind:pageSize={filters.pageSize}
         onSubmit={applyNewFilters} />
 
     {#if loading}

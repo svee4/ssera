@@ -12,7 +12,12 @@ public sealed class WorkerHistory
     /// <summary>
     /// UTC
     /// </summary>
-    public DateTime Timestamp => DateTime.SpecifyKind(_timestamp, DateTimeKind.Utc);
+    public DateTime Timestamp
+    {
+        get => DateTime.SpecifyKind(_timestamp, DateTimeKind.Utc);
+        set => _timestamp = value;
+    }
+
     private DateTime _timestamp;
 
     public string Message { get; private set; } = null!;

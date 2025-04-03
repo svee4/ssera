@@ -1,6 +1,7 @@
 <script module lang="ts">
     export type Entry = {
         id: string;
+        date: Date;
         tags: string[];
     }
 </script>
@@ -18,9 +19,10 @@
     {#each entries as entry (entry.id)}
     <div class="item-container">
         <p class="tags">
-        {#if entry.tags.length == 0}
-            &nsbp;
-        {:else if entry.tags.length == 1}
+        <span class="date">
+            {entry.date.toLocaleDateString()}&nbsp;
+        </span>
+        {#if entry.tags.length == 1}
         <span class="primary-tag">{entry.tags[0]}</span>
         {:else}
         <span class="primary-tag">{entry.tags[0]}, </span>
@@ -48,16 +50,45 @@
         flex-direction: column;
         gap: 6px;
         border: 1px solid rgb(252, 252, 252);
-        height: min-content;
+
+
+        /* 
+        
+        THE CORRECT COMBINATIONS TO USE HERE ARE VERY DELICATE:
+        WHEN SPECIFYING WIDTH: SPECIFY IMG HEIGHT
+        WHEN SPECIFYING HEIGHT: SPECIFY IMG WIDTH
+
+        FUCK AROUND AND FIND OUT AT YOUR OWN RISK
+
+        */
+        height: 300px;
+        /* width: 200px; */
 
         & a {
-            max-width: 300px;
-            max-height: 400px;
+            width: 100%;
+            height: 100%;
 
             & img {
                 object-fit: contain;
-                width: 100%;
                 height: 100%;
+                /* width: 100%; */
+            }
+        }
+    }
+
+    @media (width <= 500px) {
+        #container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .item-container {
+            width: unset;
+            height: unset;
+
+            & a img {
+                width: 100%;
+                height: unset;
             }
         }
     }

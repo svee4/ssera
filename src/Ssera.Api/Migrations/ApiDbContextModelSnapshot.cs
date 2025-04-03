@@ -23,9 +23,6 @@ namespace Ssera.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("CreatedUtc")
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("TEXT");
 
@@ -79,7 +76,7 @@ namespace Ssera.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("ImageArchiveEntryId")
+                    b.Property<int>("EntryId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Tag")
@@ -88,7 +85,7 @@ namespace Ssera.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ImageArchiveEntryId");
+                    b.HasIndex("EntryId");
 
                     b.ToTable("ImageArchiveTag");
                 });
@@ -119,9 +116,13 @@ namespace Ssera.Api.Migrations
 
             modelBuilder.Entity("Ssera.Api.Data.ImageArchiveTag", b =>
                 {
-                    b.HasOne("Ssera.Api.Data.ImageArchiveEntry", null)
+                    b.HasOne("Ssera.Api.Data.ImageArchiveEntry", "Entry")
                         .WithMany("Tags")
-                        .HasForeignKey("ImageArchiveEntryId");
+                        .HasForeignKey("EntryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Entry");
                 });
 
             modelBuilder.Entity("Ssera.Api.Data.ImageArchiveEntry", b =>

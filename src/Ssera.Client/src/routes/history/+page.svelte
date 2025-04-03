@@ -2,8 +2,7 @@
 	import { onMount } from "svelte";
 	import { HistoryApiHelper } from "$lib/HistoryApiHelper";
 
-	let stream: Promise<HistoryApiHelper.ApiResponse> = new Promise(() => {
-	});
+	let stream: Promise<HistoryApiHelper.ApiResponse> = $state(new Promise(() => {}));
 
 	function fetchData() {
 		stream = fetch(HistoryApiHelper.ApiRoute).then(response => response.json());
@@ -29,13 +28,10 @@
 			<thead>
 			<tr>
 				<th scope="col">
-					<span>Date</span>
+					<span>Timestamp</span>
 				</th>
 				<th scope="col">
-					<span>Event count</span>
-				</th>
-				<th scope="col">
-					<span>Time taken</span>
+					<span>Worker</span>
 				</th>
 				<th scope="col">
 					<span>Message</span>
@@ -45,17 +41,14 @@
 			<tbody>
 			{#each events as event}
 				<tr>
-					<td class="col-date">
-						<span>{new Date(event.date).toLocaleString()}</span>
+					<td class="col-timestamp">
+						<span>{new Date(event.timestamp).toLocaleString()}</span>
 					</td>
-					<td class="col-eventcount">
-						<span>{event.totalEvents}</span>
-					</td>
-					<td class="col-timetaken">
-						<span>{event.timeTaken}</span>
+					<td class="col-worker">
+						<span>{event.workerName}</span>
 					</td>
 					<td class="col-message">
-						<span>{event.message ?? ""}</span>
+						<span style="white-space: pre-line;">{event.message}</span>
 					</td>
 				</tr>
 			{/each}
@@ -105,9 +98,6 @@
 				max-width: 80ch;
 			}
 
-			&.col-link > :is(a, span) {
-				word-break: break-all;
-			}
 		}
 	}
 

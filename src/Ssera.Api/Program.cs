@@ -30,7 +30,7 @@ builder.Services.AddCors();
 builder.Services.Configure<RouteHandlerOptions>(options => options.ThrowOnBadRequest = true);
 
 //builder.Services.AddHostedService<EventArchiveWorker>();
-//builder.Services.AddHostedService<ImageArchiveWorker>();
+builder.Services.AddHostedService<ImageArchiveWorker>();
 
 builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, DefaultMapper>(EventArchiveEventKind.TeasersMV.AsHuman());
 builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, PerformanceVarietyRealityMapper>(EventArchiveEventKind.Performance.AsHuman());
@@ -59,9 +59,11 @@ else
 {
     var options = new ForwardedHeadersOptions()
     {
-        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+        ForwardLimit = 1
     };
-    // allow all networks because the app is ran exclusively behind a trusted proxy
+
+    // allow all networks because the app is ran exclusively behind a single trusted proxy
     options.KnownNetworks.Clear();
     options.KnownProxies.Clear();
     _ = app.UseForwardedHeaders(options);

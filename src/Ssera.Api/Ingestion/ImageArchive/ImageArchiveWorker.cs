@@ -44,23 +44,27 @@ public sealed partial class ImageArchiveWorker(
             {
                 await Run(token);
             }
-            catch
+            catch (Exception ex)
             {
-                if (!token.IsCancellationRequested)
+                if (token.IsCancellationRequested)
                 {
+                    return;
+                }
+                else
+                {
+                    _logger.LogError("Uncaught exception: {Exception}", ex);
+
                     await using var serviceScope = _sserviceScopeFactory.CreateAsyncScope();
                     var handler = serviceScope.ServiceProvider.GetRequiredService<AddHistory.Handler>();
 
                     if (!await handler.HandleAsync(new AddHistory.Command(
                             nameof(ImageArchiveWorker),
-                            "Uncaught exception has terminated the worker"),
+                            "Uncaught exception terminated task prematurely"),
                         token))
                     {
                         _logger.LogError("Failed to add uncaught exception history entry");
                     }
                 }
-
-                throw;
             }
 
             await Task.Delay(delay, token);
@@ -158,8 +162,9 @@ public sealed partial class ImageArchiveWorker(
                             topLevelEntry.Kind,
                             subLevelEntry.Date,
                             [
-                                ImageArchiveTag.Create(subLevelEntry.Name), 
-                                .. entry.Tags.Select(ImageArchiveTag.Create)]));
+                                ImageArchiveTag.Create(subLevelEntry.Name),
+                                .. entry.Tags.Select(ImageArchiveTag.Create)
+                            ]));
                     }
                 }
             }
@@ -252,7 +257,7 @@ public sealed partial class ImageArchiveWorker(
 
         if (!IsFolder(folder))
         {
-            throw new ArgumentException("File is not a folder", nameof(folder));
+            throw new ArgumentException($"File is not a folder ({folder.Name})", nameof(folder));
         }
 
         if (!TryParseTopLevelKind(folder.Name, out var folderKind))
@@ -293,8 +298,9 @@ public sealed partial class ImageArchiveWorker(
 
                 continue;
             }
+            date = DateTime.SpecifyKind(date, DateTimeKind.Utc);
 
-            var name = match.Groups["Name"].Value;
+            var name = match.Groups["Name"].Value.Trim();
 
             var entries = await IngestSubLevelFolder(subFolder, state, token);
             subEntries.Add(new SubLevelEntry(date, name, [.. entries]));
@@ -331,7 +337,7 @@ public sealed partial class ImageArchiveWorker(
         {
             var match = datedFilenameRegex.Match(file.Name);
 
-            var name = match.Success ? match.Groups["Name"].Value : file.Name;
+            var name = match.Success ? match.Groups["Name"].Value.Trim() : file.Name;
             name = Path.GetFileNameWithoutExtension(name);
 
             if (IsFolder(file))
@@ -358,10 +364,26 @@ public sealed partial class ImageArchiveWorker(
         IngestionState util,
         CancellationToken token)
     {
-        var request = util.Service.Files.List();
-        request.Key = util.ApiKey;
-        request.Q = $"'{folderId}' in parents";
-        return await request.ExecuteAsync(token);
+        try
+        {
+            return await Core(folderId, util, token);
+        }
+        catch (Google.GoogleApiException ex) when ((int)ex.HttpStatusCode >= 500)
+        {
+            // retry once
+            return await Core(folderId, util, token);
+        }
+
+        static async Task<Google.Apis.Drive.v3.Data.FileList> Core(
+            string folderId,
+            IngestionState util,
+            CancellationToken token)
+        {
+            var request = util.Service.Files.List();
+            request.Key = util.ApiKey;
+            request.Q = $"'{folderId}' in parents";
+            return await request.ExecuteAsync(token);
+        }
     }
 
     private static bool IsFolder(DriveFile file) =>
@@ -403,9 +425,10 @@ public sealed partial class ImageArchiveWorker(
     // the actual regex we want to use eventually is (\d{1,2}.)|(Misc)|(Photoshoots)
     // misc and sns will need some special handling, so [1-9]+. for now
     // for testing, 1. works for getting only fearless
-    [GeneratedRegex(@"[1-9]+.")]
+    //[GeneratedRegex(@"^1.")]
+    [GeneratedRegex(@"^[1-9]+.")]
     private static partial Regex TopLevelFolderRegex();
 
-    [GeneratedRegex(@"(?<Date>\d{6})\s+(?<Name>.+)")]
+    [GeneratedRegex(@"^\s*(?<Date>\d{6})\s+(?<Name>.+)")]
     private static partial Regex DatedFilenameRegex();
 }

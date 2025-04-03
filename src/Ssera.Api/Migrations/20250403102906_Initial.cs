@@ -20,8 +20,7 @@ namespace Ssera.Api.Migrations
                     Date = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Type = table.Column<int>(type: "INTEGER", nullable: false),
                     Title = table.Column<string>(type: "TEXT", nullable: true),
-                    Link = table.Column<string>(type: "TEXT", nullable: true),
-                    CreatedUtc = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Link = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -66,16 +65,17 @@ namespace Ssera.Api.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Tag = table.Column<string>(type: "TEXT", nullable: false),
-                    ImageArchiveEntryId = table.Column<int>(type: "INTEGER", nullable: true)
+                    EntryId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ImageArchiveTag", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ImageArchiveTag_ImageArchive_ImageArchiveEntryId",
-                        column: x => x.ImageArchiveEntryId,
+                        name: "FK_ImageArchiveTag_ImageArchive_EntryId",
+                        column: x => x.EntryId,
                         principalTable: "ImageArchive",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -94,9 +94,9 @@ namespace Ssera.Api.Migrations
                 column: "Type");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ImageArchiveTag_ImageArchiveEntryId",
+                name: "IX_ImageArchiveTag_EntryId",
                 table: "ImageArchiveTag",
-                column: "ImageArchiveEntryId");
+                column: "EntryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WorkerHistory_Timestamp",

@@ -58,12 +58,13 @@ public sealed class CFMapper(ILogger<CFMapper> logger) : IEventArchiveSheetMappe
                         CultureInfo.InvariantCulture, DateTimeStyles.None,
                         out var result))
                     {
-                        date = previousDate = result;
+                        date = previousDate = DateTime.SpecifyKind(result, DateTimeKind.Utc);
                     }
                     else
                     {
                         MappingExtensions.LogInvalidDateFormat(_logger,
                             EventArchiveEventKind.CF.AsHuman(), dateString, rowIndex);
+
                         date = previousDate;
                     }
                 }

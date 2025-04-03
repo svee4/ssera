@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace Ssera.Api.Data;
 
 public sealed class ImageArchiveEntry
@@ -10,7 +12,11 @@ public sealed class ImageArchiveEntry
     /// <summary>
     /// UTC
     /// </summary>
-    public DateTime Date => DateTime.SpecifyKind(_date, DateTimeKind.Utc);
+    public DateTime Date
+    {
+        get => DateTime.SpecifyKind(_date, DateTimeKind.Utc);
+        private set => _date = value;
+    }
 
     private DateTime _date;
 
@@ -41,13 +47,4 @@ public sealed class ImageArchiveEntry
             Tags = [.. tags]
         };
     }
-
-    //private sealed class Configuration : IEntityTypeConfiguration<ImageArchiveEntry>
-    //{
-    //    public void Configure(EntityTypeBuilder<ImageArchiveEntry> builder)
-    //    {
-    //        builder.Property(p => p.Tags)
-    //            .
-    //    }
-    //}
 }

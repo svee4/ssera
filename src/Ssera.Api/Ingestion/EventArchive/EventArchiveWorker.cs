@@ -54,14 +54,11 @@ public sealed class EventArchiveWorker(
                 var addHistoryHandler = scope.ServiceProvider.GetRequiredService<AddHistory.Handler>();
 
                 if (!await addHistoryHandler.HandleAsync(new AddHistory.Command(
-                    nameof(EventArchiveWorker),
-                    "Uncaught exception has terminated worker"), token))
+                        nameof(EventArchiveWorker),
+                        "Uncaught exception terminated task prematurely"), token))
                 {
                     _logger.LogError("Failed to add history entry");
                 }
-
-                await _stoppingSource.CancelAsync();
-                throw;
             }
 
             await Task.Delay(_delay, token);

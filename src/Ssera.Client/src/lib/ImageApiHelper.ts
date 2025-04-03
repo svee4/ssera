@@ -12,12 +12,13 @@ export namespace ImageApiHelper
         id: string;
         member: GroupMember;
         tags: Tag[]
-        era?: Era;
+        era?: string;
+        date: string;
     }
 
     export enum OrderByType {
         Date,
-        FirstTag
+        Tags
     }
 
     export enum SortType {

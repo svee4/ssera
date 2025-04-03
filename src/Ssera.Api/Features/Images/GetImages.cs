@@ -32,7 +32,12 @@ public sealed partial class GetImages
     }
 
     public sealed record Response(List<Result> Results);
-    public sealed record Result(string Id, GroupMember Member, Era? Era, IReadOnlyList<string> Tags);
+    public sealed record Result(
+        string Id,
+        GroupMember Member,
+        Era? Era,
+        IReadOnlyList<string> Tags,
+        DateTime Date);
 
     private static async ValueTask<Response> HandleAsync(Query request, ApiDbContext dbContext, CancellationToken token)
     {
@@ -64,15 +69,25 @@ public sealed partial class GetImages
         {
             (OrderByType.Date, true) => query.OrderByDescending(entry => entry.Date),
             (OrderByType.Date, false) => query.OrderBy(entry => entry.Date),
-            (OrderByType.FirstTag, true) => query.OrderByDescending(entry => entry.Tags.FirstOrDefault()),
-            (OrderByType.FirstTag, false) => query.OrderBy(entry => entry.Tags.FirstOrDefault()),
+
+            // i have no idea how to do this query properly in ef core
+            // but the functionality we want is to first order by the first tag,
+            // then if they are equal then the second tag etc etc
+            (OrderByType.Tags, true) => query
+                .OrderByDescending(entry => entry.Tags.FirstOrDefault())
+                .ThenByDescending(entry => entry.Tags.ElementAtOrDefault(1))
+                .ThenByDescending(entry => entry.Tags.ElementAtOrDefault(2)),
+
+            (OrderByType.Tags, false) => query
+                .OrderBy(entry => entry.Tags.FirstOrDefault())
+                .ThenBy(entry => entry.Tags.ElementAtOrDefault(1))
+                .ThenBy(entry => entry.Tags.ElementAtOrDefault(2)),
             _ => null
         };
 
         query = orderedQuery is not null
             ? orderedQuery.ThenByDescending(entry => entry.Id)
             : query.OrderByDescending(entry => entry.Id);
-
 
         query = query.Take(request.PageSize);
         var skips = (request.Page - 1) * request.PageSize;
@@ -87,8 +102,9 @@ public sealed partial class GetImages
                 entry.FileId,
                 entry.Member,
                 TopLevelKindToEra(entry.TopLevelKind),
-                entry.Tags.Select(t => t.Tag)
-            .ToList()));
+                entry.Tags.Select(t => t.Tag).ToList(),
+                entry.Date
+            ));
 
         var results = await resultsQuery.ToListAsync(token);
         return new Response(results);

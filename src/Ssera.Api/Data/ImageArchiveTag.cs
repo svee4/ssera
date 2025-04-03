@@ -7,6 +7,8 @@ public sealed class ImageArchiveTag
     public int Id { get; private set; }
     public string Tag { get; private set; } = null!;
 
+    public ImageArchiveEntry Entry { get; private set; } = null!;
+
     private ImageArchiveTag() { }
 
     public static ImageArchiveTag Create(string tag)

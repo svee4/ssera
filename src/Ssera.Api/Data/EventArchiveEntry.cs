@@ -10,7 +10,11 @@ public sealed class EventArchiveEntry
     /// <summary>
     /// Store as UTC even if value is not actually UTC
     /// </summary>
-    public DateTime Date => DateTime.SpecifyKind(_date, DateTimeKind.Utc);
+    public DateTime Date
+    {
+        get => DateTime.SpecifyKind(_date, DateTimeKind.Utc);
+        set => _date = value;
+    }
 
     // we have to use a backing field with a getter property that specifies UTC
     // because when reading from db, the kind is unspecified which is problematic

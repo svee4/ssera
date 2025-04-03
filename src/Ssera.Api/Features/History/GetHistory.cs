@@ -15,12 +15,14 @@ public sealed partial class GetHistory
         Query _,
         ApiDbContext dbContext,
         CancellationToken token
-    ) => await dbContext.WorkerHistory
+    )
+    {
+        return await dbContext.WorkerHistory
             .OrderByDescending(m => m.Timestamp)
             .Take(50)
-            .Select(m => new HistoryModel(m.Timestamp, m.WorkerName, m.Message))
+            .Select(m => new HistoryModel(new DateTimeOffset(m.Timestamp), m.WorkerName, m.Message))
             .ToListAsync(token);
+    }
 
-    // TODO figure out home timespans work in javascript
-    public sealed record HistoryModel(DateTime Timestamp, string WorkerName, string Message);
+    public sealed record HistoryModel(DateTimeOffset Timestamp, string WorkerName, string Message);
 }
