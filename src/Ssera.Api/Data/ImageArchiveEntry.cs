@@ -1,6 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
 namespace Ssera.Api.Data;
 
 public sealed class ImageArchiveEntry
@@ -9,7 +6,14 @@ public sealed class ImageArchiveEntry
     public string FileId { get; private set; } = null!;
     public GroupMember Member { get; private set; }
     public ImageArchive.TopLevelKind TopLevelKind { get; private set; }
-    public DateTime Date { get; private set; }
+
+    /// <summary>
+    /// UTC
+    /// </summary>
+    public DateTime Date => DateTime.SpecifyKind(_date, DateTimeKind.Utc);
+
+    private DateTime _date;
+
     public ICollection<ImageArchiveTag> Tags { get; private set; } = null!;
 
     private ImageArchiveEntry() { }
@@ -21,6 +25,11 @@ public sealed class ImageArchiveEntry
         DateTime date,
         IEnumerable<ImageArchiveTag> tags)
     {
+        if (date.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("DateTime Kind must be UTC");
+        }
+
         ArgumentException.ThrowIfNullOrEmpty(fileId);
 
         return new ImageArchiveEntry
@@ -28,7 +37,7 @@ public sealed class ImageArchiveEntry
             FileId = fileId,
             Member = member,
             TopLevelKind = topLevelKind,
-            Date = DateTime.SpecifyKind(date, DateTimeKind.Utc),
+            _date = date,
             Tags = [.. tags]
         };
     }

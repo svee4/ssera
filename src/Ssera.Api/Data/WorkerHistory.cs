@@ -8,8 +8,14 @@ public sealed class WorkerHistory
     public int Id { get; set; }
 
     public string WorkerName { get; private set; } = null!;
-    public DateTime Timestamp { get; private set; }
-    public string Message { get; private set; }
+
+    /// <summary>
+    /// UTC
+    /// </summary>
+    public DateTime Timestamp => DateTime.SpecifyKind(_timestamp, DateTimeKind.Utc);
+    private DateTime _timestamp;
+
+    public string Message { get; private set; } = null!;
 
     private WorkerHistory() { }
 
@@ -18,12 +24,17 @@ public sealed class WorkerHistory
         DateTime timeStamp,
         string message)
     {
+        if (timeStamp.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("DateTime Kind must be UTC");
+        }
+
         ArgumentException.ThrowIfNullOrEmpty(workerName);
 
         return new WorkerHistory
         {
             WorkerName = workerName,
-            Timestamp = timeStamp,
+            _timestamp = timeStamp,
             Message = message
         };
     }
