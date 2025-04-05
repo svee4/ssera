@@ -31,7 +31,8 @@ public sealed partial class GetImages
         public int PageSize { get; init; }
     }
 
-    public sealed record Response(List<Result> Results);
+    public sealed record Response(List<Result> Results, int TotalResults);
+
     public sealed record Result(
         string Id,
         GroupMember Member,
@@ -89,14 +90,16 @@ public sealed partial class GetImages
             ? orderedQuery.ThenByDescending(entry => entry.Id)
             : query.OrderByDescending(entry => entry.Id);
 
-        query = query.Take(request.PageSize);
-        var skips = (request.Page - 1) * request.PageSize;
         var count = await query.CountAsync(token);
+
+        var skips = (request.Page - 1) * request.PageSize;
 
         if (skips > count)
         {
-            return new Response([]);
+            return new Response([], count);
         }
+
+        query = query.Skip(skips).Take(request.PageSize);
 
         var resultsQuery = query.Select(entry => new Result(
                 entry.FileId,
@@ -107,7 +110,7 @@ public sealed partial class GetImages
             ));
 
         var results = await resultsQuery.ToListAsync(token);
-        return new Response(results);
+        return new Response(results, count);
     }
 
     private static ImageArchive.TopLevelKind EraToTopLevelKind(Era era) =>

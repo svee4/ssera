@@ -5,7 +5,8 @@ export namespace ImageApiHelper
     export const ApiRoute = `${ApiDomain}/api/images`;
 
     export type GetResponse = {
-        results: GetResponseResult[]
+        results: GetResponseResult[];
+        totalResults: number;
     }
 
     export type GetResponseResult = {

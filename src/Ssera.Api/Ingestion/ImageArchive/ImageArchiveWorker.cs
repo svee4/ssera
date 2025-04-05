@@ -44,26 +44,19 @@ public sealed partial class ImageArchiveWorker(
             {
                 await Run(token);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                if (token.IsCancellationRequested)
-                {
-                    return;
-                }
-                else
-                {
-                    _logger.LogError("Uncaught exception: {Exception}", ex);
+                _logger.LogError("Uncaught exception: {Exception}", ex);
 
-                    await using var serviceScope = _sserviceScopeFactory.CreateAsyncScope();
-                    var handler = serviceScope.ServiceProvider.GetRequiredService<AddHistory.Handler>();
+                await using var serviceScope = _sserviceScopeFactory.CreateAsyncScope();
+                var handler = serviceScope.ServiceProvider.GetRequiredService<AddHistory.Handler>();
 
-                    if (!await handler.HandleAsync(new AddHistory.Command(
-                            nameof(ImageArchiveWorker),
-                            "Uncaught exception terminated task prematurely"),
-                        token))
-                    {
-                        _logger.LogError("Failed to add uncaught exception history entry");
-                    }
+                if (!await handler.HandleAsync(new AddHistory.Command(
+                        nameof(ImageArchiveWorker),
+                        "Uncaught exception terminated task prematurely"),
+                    token))
+                {
+                    _logger.LogError("Failed to add uncaught exception history entry");
                 }
             }
 
@@ -103,7 +96,7 @@ public sealed partial class ImageArchiveWorker(
                 ApiKey = apiKey,
             });
 
-            var util = new IngestionState(0, service, apiKey, publicLog);
+            var state = new IngestionState(0, service, apiKey, publicLog);
 
             IReadOnlyList<ImageArchiveInfo> archives = [
                 new ImageArchiveInfo(GroupMember.Chaewon, ChaewonDriveId),
@@ -115,7 +108,7 @@ public sealed partial class ImageArchiveWorker(
 
             foreach (var archive in archives)
             {
-                archiveEntries.Add(await IngestArchive(archive, util with { Current = archive.Member }, token));
+                archiveEntries.Add(await IngestArchive(archive, state with { Current = archive.Member }, token));
             }
         }
         catch (Exception e)
@@ -125,7 +118,6 @@ public sealed partial class ImageArchiveWorker(
         }
 
         await using var dbContext = serviceScope.ServiceProvider.GetRequiredService<ApiDbContext>();
-
 
         var dbEntryCount = 0;
         var subLevelCount = 0;

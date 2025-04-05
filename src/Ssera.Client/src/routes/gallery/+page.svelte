@@ -4,9 +4,7 @@
 	import type { Entry } from "./GalleryView.svelte";
 	import GalleryView from "./GalleryView.svelte";
 	import Filters from "./Filters.svelte";
-
-    let loading = $state(true);
-    let entries: Entry[] = $state([]);
+	import PagedGalleryView from "./PagedGalleryView.svelte";
 
     type Filters = {
         tags: string[];
@@ -17,7 +15,6 @@
         orderBy: ImageApiHelper.OrderByType;
         sort: ImageApiHelper.SortType;
         pageSize: number;
-        page: number;
     }
     
     let filters: Filters = $state({
@@ -29,8 +26,17 @@
         orderBy: 0,
         sort: 0,
         pageSize: 0,
-        page: 1
     });
+
+    let loading = $state(true);
+    let entries: Entry[] = $state([]);
+
+    let page = $state(1);
+    let pageSize = $derived(filters.pageSize);
+
+    let totalResults = $state(0);
+    let maxPage = $derived(Math.ceil(totalResults / pageSize));
+    $effect(() => console.log(totalResults, pageSize, maxPage));
 
     const fetchEntries = async () => {
         loading = true;
@@ -56,7 +62,7 @@
         q.append("orderBy", ImageApiHelper.OrderByType[filters.orderBy]);
         q.append("sort", ImageApiHelper.SortType[filters.sort]);
         q.append("pageSize", filters.pageSize.toString());
-        q.append("page", filters.page.toString());
+        q.append("page", page.toString());
 
         const response = await fetch(ImageApiHelper.ApiRoute + "?" + q.toString());
 
@@ -66,23 +72,33 @@
             return;
         }
         
-        entries = (await response.json() as ImageApiHelper.GetResponse).results
+        const data = (await response.json() as ImageApiHelper.GetResponse);
+
+        entries = data.results
             .map(res => {
                 let tags = res.tags;
                 if (res.era) tags = [res.era, ...tags];
                 return { id: res.id, tags, date: new Date(res.date) };
-            })
+            });
+
+        totalResults = data.totalResults;
 
         loading = false;
     }
-
-    onMount(() => fetchEntries());
 
     const applyNewFilters = () => {
         if (!loading) {
             fetchEntries();
         }
     }
+
+    const setPage = (newPage: number) => {
+        console.log(newPage);
+        page = newPage;
+        applyNewFilters();
+    }
+
+    onMount(() => fetchEntries());
 </script>
 
 <div id="page">
@@ -95,12 +111,24 @@
         bind:orderBy={filters.orderBy}
         bind:sort={filters.sort}
         bind:pageSize={filters.pageSize}
-        onSubmit={applyNewFilters} />
+        onSubmit={applyNewFilters} 
+    />
 
     {#if loading}
+    
     <p>Loading...</p>
+
     {:else}
-    <GalleryView entries={entries} />
+
+    <PagedGalleryView
+        entries={entries} 
+        totalResults={totalResults} 
+        page={page} 
+        pageSize={pageSize} 
+        maxPage={maxPage} 
+        setPage={setPage} 
+    />
+
     {/if}
 </div>
 

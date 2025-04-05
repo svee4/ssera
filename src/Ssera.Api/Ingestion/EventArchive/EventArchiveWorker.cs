@@ -74,7 +74,11 @@ public sealed class EventArchiveWorker(
         await using var scope = _serviceScopeFactory.CreateAsyncScope();
 
         using var service = new Google.Apis.Sheets.v4.SheetsService(
-                new BaseClientService.Initializer { ApiKey = _configuration.GetRequiredValue("GoogleApiKey") });
+            new BaseClientService.Initializer 
+            {
+                ApiKey = _configuration.GetRequiredValue("GoogleApiKey"),
+                ApplicationName = "Ssera"
+            });
 
         var request = service.Spreadsheets.Get(LeSserafimArchiveSpreadsheetId);
         var spreadsheet = await request.ExecuteAsync(token);
