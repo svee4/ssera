@@ -5,6 +5,8 @@
 	import GalleryView from "./GalleryView.svelte";
 	import Filters from "./Filters.svelte";
 	import PagedGalleryView from "./PagedGalleryView.svelte";
+	import { queryParam } from "sveltekit-search-params";
+	import { get } from "svelte/store";
 
     type Filters = {
         tags: string[];
@@ -31,12 +33,20 @@
     let loading = $state(true);
     let entries: Entry[] = $state([]);
 
-    let page = $state(1);
+    let pageStore = queryParam<number>("page", {
+        encode: v => v.toString(),
+        decode: v => v && !isNaN(parseInt(v)) ? parseInt(v) : 1,
+        defaultValue: 1
+    }, {
+        showDefaults: true,
+        pushHistory: false,
+        sort: true
+    });
+        
     let pageSize = $derived(filters.pageSize);
 
     let totalResults = $state(0);
     let maxPage = $derived(Math.ceil(totalResults / pageSize));
-    $effect(() => console.log(totalResults, pageSize, maxPage));
 
     const fetchEntries = async () => {
         loading = true;
@@ -62,7 +72,7 @@
         q.append("orderBy", ImageApiHelper.OrderByType[filters.orderBy]);
         q.append("sort", ImageApiHelper.SortType[filters.sort]);
         q.append("pageSize", filters.pageSize.toString());
-        q.append("page", page.toString());
+        q.append("page", get(pageStore).toString());
 
         const response = await fetch(ImageApiHelper.ApiRoute + "?" + q.toString());
 
@@ -94,7 +104,7 @@
 
     const setPage = (newPage: number) => {
         console.log(newPage);
-        page = newPage;
+        pageStore.set(newPage);
         applyNewFilters();
     }
 
@@ -123,7 +133,7 @@
     <PagedGalleryView
         entries={entries} 
         totalResults={totalResults} 
-        page={page} 
+        page={$pageStore} 
         pageSize={pageSize} 
         maxPage={maxPage} 
         setPage={setPage} 

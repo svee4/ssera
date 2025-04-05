@@ -7,7 +7,6 @@
         setPage 
     }: { totalResults: number, pageSize: number, page: number, maxPage: number, setPage: (page: number) => void } = $props();
     
-    console.log(totalResults, page, pageSize, maxPage);
     let localPage = $state(page);
 
     let start = $derived((page - 1) * pageSize + 1);
@@ -24,7 +23,7 @@
 <div id="container">
     <form onsubmit={onsubmit}>
         <button
-            onclick={() => { console.log(localPage); localPage--; return true; }}
+            onclick={() => { localPage--; return true; }}
             title="Previous page"
             aria-label="Previous page"
             disabled={(localPage - 1) < 1}

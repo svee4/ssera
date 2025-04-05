@@ -1,108 +1,147 @@
 <script module lang="ts">
-    export type Entry = {
-        id: string;
-        date: Date;
-        tags: string[];
-    }
+	export type Entry = {
+		id: string;
+		date: Date;
+		tags: string[];
+	};
 </script>
 
 <script lang="ts">
-    let { entries = $bindable() }: { entries: Entry[] } = $props();
+	let { entries = $bindable() }: { entries: Entry[] } = $props();
 
-    const getDriveThumbnailLink = (fileId: string) => `https://drive.google.com/thumbnail?id=${fileId}`
-    const getDriveImageLink = (fileId: string) => `https://drive.google.com/file/d/${fileId}/view`;
+	let heights: number[] = $state(new Array(entries.length).fill(0));
+	let clientHeights: number[] = $state(new Array(entries.length).fill(0));
+
+	// fucking magic
+	// https://dev.to/hungle00/build-a-masonry-layout-pinterest-layout-3glp
+	// the basic flow is:
+	// - render grid item 
+	// - store the height of the caption before the image is loaded
+	// - when image loads, calculate actual height (image height + caption height)
+	// - calculate and set grid-row-end based on height via getGridElementSpan
+	// this could possibly be improved by using the container height directly,
+	// however it has issues because of the grid height
+
+	const RowHeight = 10;
+	const RowGap = 10;
+	const ImageWidth = 300;
+
+	// all padding and margin in .item-container relevant to getting its height 
+	const ItemContainerPadding = 
+		/* padding */ (2 * 1) 
+		+ /* gap */ 6 
+		+ /* tags margin */ 4;
+
+	const getDriveThumbnailLink = (fileId: string) => `https://drive.google.com/thumbnail?id=${fileId}`;
+	const getDriveImageLink = (fileId: string) => `https://drive.google.com/file/d/${fileId}/view`;
+
+	/**
+	 * gets the number of rows that an element with the given size should span
+	 * @param h the height of the element in pixels
+	 */
+	const getGridElementSpan = (h: number): number => {
+		const v = h === 0 ? 10 : Math.ceil(h / (RowHeight + RowGap));
+		return v;
+	};
 </script>
 
-<div id="container">
-    {#each entries as entry (entry.id)}
-    <div class="item-container">
-        <p class="tags">
-            <span class="date">
-                {entry.date.toLocaleDateString()}
-            </span>
-            {#if entry.tags.length == 1}
-            <span class="primary-tag">{entry.tags[0]}</span>
-            {:else}
-            <span class="primary-tag">{entry.tags[0]}, </span>
-            {entry.tags.slice(1).join(", ")}
-            {/if}
-        </p>
-        <div class="imgc">
-            <a href={getDriveImageLink(entry.id)}>
-                <img src={getDriveThumbnailLink(entry.id)} alt="" />
-            </a>
-        </div>
-    </div>
-    {/each}
+<div id="galleryview-container" style="--R: {RowHeight}px; --G: {RowGap}px; --image-width: {ImageWidth}px">
+	{#each entries as entry, index (entry.id)}
+		<div
+            class="item-container" 
+            style:grid-row-end={"span " + getGridElementSpan(heights[index])}
+        >
+			<p class="tags" bind:clientHeight={clientHeights[index]}>
+				<span class="date">
+					{entry.date.toLocaleDateString()}
+				</span>
+				{#if entry.tags.length == 1}
+					<span class="primary-tag">{entry.tags[0]}</span>
+				{:else}
+					<span class="primary-tag">{entry.tags[0]}, </span>
+					{entry.tags.slice(1).join(", ")}
+				{/if}
+			</p>
+
+			<a class="imgc" href={getDriveImageLink(entry.id)}>
+				<img
+					onload={(async (e: { target: HTMLImageElement }) => {
+						heights[index] = clientHeights[index] + e.target.height + ItemContainerPadding;
+					}) as any}
+					src={getDriveThumbnailLink(entry.id)}
+					alt=""
+				/>
+			</a>
+		</div>
+	{/each}
 </div>
 
 <style>
-    #container {
-        width: 100%;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-evenly;
-        gap: 12px;
-    }
+	#galleryview-container {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, 300px);
 
-    .item-container {
-        /* flex-shrink: 1; */
+		grid-auto-rows: var(--R);
+		grid-row-gap: var(--G);
 
-        display: flex;
-        flex-direction: column;
-        width: min-content;
+		column-gap: 4px;
+        justify-content: center;
+	}
 
-        gap: 6px;
-        border: 1px solid rgb(252, 252, 252);
+	.item-container {
+        padding: 1px;
+		display: flex;
+		flex-direction: column;
+		height: min-content;
 
-        /* 
-        
-        THE CORRECT COMBINATIONS TO USE HERE ARE VERY DELICATE:
-        WHEN SPECIFYING WIDTH: SPECIFY IMG HEIGHT
-        WHEN SPECIFYING HEIGHT: SPECIFY IMG WIDTH
+		gap: 6px;
+        background-color: rgb(252, 252, 252);
+        border-top-left-radius: 6px;
+        border-top-right-radius: 6px;
+        box-shadow: 0px -2px 5px 0px black;
+	}
 
-        FUCK AROUND AND FIND OUT AT YOUR OWN RISK
+	.imgc {
+		display: flex;
 
-        */
-        height: 300px;
-        /* width: 200px; */
-    }
+		& img {
+			object-fit: contain;
+			/* max-width: 100%; */
+			width: var(--image-width);
+		}
+	}
 
-    .imgc {
-        width: 100%;
-        height: 100%;
-        /* flex is just to make the child a fill .imgc */
-        display: flex; 
+	.tags {
+        margin-left: 6px;
+        margin-right: 6px;
+        margin-top: 4px;
+		font-size: 0.8rem;
+	}
 
-        & img {
-            object-fit: contain;
-            height: 100%;
-            /* width: 100%; */
-        }
-    }
+	.primary-tag {
+		font-weight: bold;
+	}
 
-    @media (width <= 500px) {
-        #container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-        }
+	/* 
+        breakpoint is aimed to be around where 2 columns would naturally happen
+        + a little padding 
+    */
+	@media (width <= 650px) {
+		#galleryview-container {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+            grid-auto-rows: unset;
+		}
 
-        .item-container {
-            width: unset;
-            height: unset;
+		.item-container {
+			width: unset;
+			height: unset;
+			grid-row-end: unset !important;
 
-            & a img {
-                width: 100%;
-                height: unset;
-            }
-        }
-    }
-
-    .tags {
-        font-size: 0.8rem;
-    }
-
-    .primary-tag {
-        font-weight: bold;
-    }
+			& a img {
+				width: 100%;
+				height: unset;
+			}
+		}
+	}
 </style>

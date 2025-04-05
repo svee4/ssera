@@ -117,10 +117,13 @@
 		"pageSize",
 		{
 			encode: (v) => v.toString(),
-			decode: (v) => (v ? parseInt(v) : 50),
+			decode: (v) => v && !isNaN(parseInt(v)) ? parseInt(v) : 50,
 			defaultValue: 50,
 		},
-		queryParamsOptions,
+		{ 
+			...queryParamsOptions,
+			showDefaults: true
+		 },
 	);
 
 	const getPrev = () => {
