@@ -9,28 +9,14 @@
 <script lang="ts">
 	let { entries = $bindable() }: { entries: Entry[] } = $props();
 
-	let heights: number[] = $state(new Array(entries.length).fill(0));
 	let clientHeights: number[] = $state(new Array(entries.length).fill(0));
 
 	// fucking magic
 	// https://dev.to/hungle00/build-a-masonry-layout-pinterest-layout-3glp
-	// the basic flow is:
-	// - render grid item 
-	// - store the height of the caption before the image is loaded
-	// - when image loads, calculate actual height (image height + caption height)
-	// - calculate and set grid-row-end based on height via getGridElementSpan
-	// this could possibly be improved by using the container height directly,
-	// however it has issues because of the grid height
 
 	const RowHeight = 10;
-	const RowGap = 10;
+	const RowGap = 20;
 	const ImageWidth = 300;
-
-	// all padding and margin in .item-container relevant to getting its height 
-	const ItemContainerPadding = 
-		/* padding */ (2 * 1) 
-		+ /* gap */ 6 
-		+ /* tags margin */ 4;
 
 	const getDriveThumbnailLink = (fileId: string) => `https://drive.google.com/thumbnail?id=${fileId}`;
 	const getDriveImageLink = (fileId: string) => `https://drive.google.com/file/d/${fileId}/view`;
@@ -48,10 +34,11 @@
 <div id="galleryview-container" style="--R: {RowHeight}px; --G: {RowGap}px; --image-width: {ImageWidth}px">
 	{#each entries as entry, index (entry.id)}
 		<div
-            class="item-container" 
-            style:grid-row-end={"span " + getGridElementSpan(heights[index])}
+            class="item-container"
+			bind:clientHeight={clientHeights[index]}
+            style:grid-row-end={"span " + getGridElementSpan(clientHeights[index])}
         >
-			<p class="tags" bind:clientHeight={clientHeights[index]}>
+			<p class="tags">
 				<span class="date">
 					{entry.date.toLocaleDateString()}
 				</span>
@@ -64,13 +51,7 @@
 			</p>
 
 			<a class="imgc" href={getDriveImageLink(entry.id)}>
-				<img
-					onload={(async (e: { target: HTMLImageElement }) => {
-						heights[index] = clientHeights[index] + e.target.height + ItemContainerPadding;
-					}) as any}
-					src={getDriveThumbnailLink(entry.id)}
-					alt=""
-				/>
+				<img src={getDriveThumbnailLink(entry.id)} alt="" />
 			</a>
 		</div>
 	{/each}
@@ -106,7 +87,6 @@
 
 		& img {
 			object-fit: contain;
-			/* max-width: 100%; */
 			width: var(--image-width);
 		}
 	}
@@ -128,20 +108,11 @@
     */
 	@media (width <= 650px) {
 		#galleryview-container {
-			display: grid;
 			grid-template-columns: 1fr 1fr;
-            grid-auto-rows: unset;
 		}
 
-		.item-container {
-			width: unset;
-			height: unset;
-			grid-row-end: unset !important;
-
-			& a img {
-				width: 100%;
-				height: unset;
-			}
+		.imgc img {
+			width: 100%;
 		}
 	}
 </style>
