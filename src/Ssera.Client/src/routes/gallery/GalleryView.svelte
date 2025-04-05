@@ -65,7 +65,7 @@
 		grid-auto-rows: var(--R);
 		grid-row-gap: var(--G);
 
-		column-gap: 4px;
+		column-gap: 8px;
         justify-content: center;
 	}
 
