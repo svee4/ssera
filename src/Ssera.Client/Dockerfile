@@ -1,20 +1,14 @@
-FROM node:21 AS build
-ARG BUILDCONST
+FROM node:22 AS build
 
 WORKDIR /app
 
 COPY . .
 
-RUN ls -Ah1
-
-RUN node buildconst.js $BUILDCONST
-RUN rm buildconst.js
-
 RUN npm ci 
 RUN npm run build
 RUN npm prune
 
-FROM node:21 AS run
+FROM node:22 AS run
 
 ENV NODE_ENV=production
 

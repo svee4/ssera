@@ -1,8 +1,8 @@
-import { ApiDomain } from "./const/ApiDomain";
+import { ApiHelper } from "$lib/ApiHelper";
 
 export namespace ImageApiHelper
 {
-    export const ApiRoute = `${ApiDomain}/api/images`;
+    export const ApiRoute = `${ApiHelper.ApiDomain}/api/images`;
 
     export type GetResponse = {
         results: GetResponseResult[];
