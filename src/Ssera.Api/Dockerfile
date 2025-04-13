@@ -1,14 +1,17 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 as sdk
 
 WORKDIR /app
+
 COPY . .
+
+WORKDIR /app/src/Ssera.Api
 RUN dotnet restore
 RUN dotnet publish -c Release -o out
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 as runtime
 
 WORKDIR /app
-COPY --from=sdk /app/out .
+COPY --from=sdk /app/src/Ssera.Api/out .
 
 RUN useradd -ms /bin/bash dockeruser
 
