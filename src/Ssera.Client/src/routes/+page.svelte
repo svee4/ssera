@@ -9,10 +9,18 @@
 <section>
 	<h3>Links</h3>
 	<p>
-		Le Sserafim archive spreadsheet:
+		Event archive spreadsheet:
 		<a href="https://docs.google.com/spreadsheets/d/14NeZu0cI5Tkd8jkGuORRdukFtAtGPnNFUSzVoLZnZuc">
 			Google sheets
 		</a>
+	</p>
+	<p>
+		Image archive spreadsheets:
+		<a href="https://bit.ly/KkuraPics">Sakura</a> 
+		<a href="https://bit.ly/ChaewonPics">Chaewon</a> 
+		<a href="https://bit.ly/HuhYunjinPics">Yunjin</a> 
+		<a href="https://bit.ly/ZuhaPics">Kazuha</a> 
+		<a href="https://bit.ly/EunchaePics">Eunchae</a> 
 	</p>
 	<p>
 		Source: <a href="https://github.com/svee4/ssera">Github</a>
