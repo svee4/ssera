@@ -46,7 +46,6 @@
 	};
 
 	function fetchData() {
-
 		if (!pageSize) return;
 
 		if (responsePending) return;

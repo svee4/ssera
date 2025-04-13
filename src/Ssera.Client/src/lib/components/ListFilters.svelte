@@ -226,7 +226,7 @@
 					style:background-color={getBgColor($pageSizeStore, prevQueryParams.pageSize)}
 					required
 					min="10"
-					max="5000"
+					max="1000"
 				/>
 			</div>
 		</div>

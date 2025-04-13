@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 namespace Ssera.Api.Data;
 
 // tag has to be a separate entity
@@ -19,5 +22,13 @@ public sealed class ImageArchiveTag
         {
             Tag = tag
         };
+    }
+
+    private sealed class Configuration : IEntityTypeConfiguration<ImageArchiveTag>
+    {
+        public void Configure(EntityTypeBuilder<ImageArchiveTag> builder)
+        {
+            builder.HasIndex(m => m.Tag);
+        }
     }
 }

@@ -6,7 +6,6 @@ namespace Ssera.Api.Data;
 public sealed class WorkerHistory
 {
     public int Id { get; set; }
-
     public string WorkerName { get; private set; } = null!;
 
     /// <summary>

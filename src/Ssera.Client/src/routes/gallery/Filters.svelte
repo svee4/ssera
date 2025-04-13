@@ -123,7 +123,7 @@
 		{ 
 			...queryParamsOptions,
 			showDefaults: true
-		 },
+		},
 	);
 
 	const getPrev = () => {
@@ -235,7 +235,7 @@
 					id="pagesize"
 					type="number"
 					min="10"
-					max="500"
+					max="1000"
 					inputmode="numeric"
 					bind:value={$pageSizeStore}
 				/>

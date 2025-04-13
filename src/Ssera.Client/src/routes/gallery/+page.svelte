@@ -7,6 +7,8 @@
 	import PagedGalleryView from "./PagedGalleryView.svelte";
 	import { queryParam } from "sveltekit-search-params";
 	import { get } from "svelte/store";
+	import type { ApiHelper } from "$lib/ApiHelper";
+	import { json } from "@sveltejs/kit";
 
     type Filters = {
         tags: string[];
@@ -30,7 +32,15 @@
         pageSize: 0,
     });
 
+    type Error = {
+        status: number;
+        message: string;
+        requestTraceId: string;
+        activityTraceId: string;
+    }
+
     let loading = $state(true);
+    let error: Error | undefined = $state(undefined);
     let entries: Entry[] = $state([]);
 
     let pageStore = queryParam<number>("page", {
@@ -77,11 +87,22 @@
         const response = await fetch(ImageApiHelper.ApiRoute + "?" + q.toString());
 
         if (!response.ok) {
-            console.error(await response.json());
+            const json = await response.json() as ApiHelper.ProblemDetails;
+            console.error(json);
+
+            error = {
+                status: json.status,
+                message: `${json.title}: ${json.detail}`,
+                activityTraceId: json.activityTraceId,
+                requestTraceId: json.requestTraceId
+            };
+
             loading = false;
             return;
         }
         
+        error = undefined;
+
         const data = (await response.json() as ImageApiHelper.GetResponse);
 
         entries = data.results
@@ -123,6 +144,14 @@
         bind:pageSize={filters.pageSize}
         onSubmit={applyNewFilters} 
     />
+
+    {#if error !== undefined}
+    <div>
+        <p>Error: <span>({error.status})</span> <span>{error.message}</span></p>
+        <p>Request trace id: <span>{error.requestTraceId}</span></p>
+        <p>Activity trace id: <span>{error.activityTraceId}</span></p>
+    </div>
+    {/if}
 
     {#if loading}
     

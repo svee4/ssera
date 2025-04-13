@@ -16,7 +16,7 @@
 
 	const RowHeight = 10;
 	const RowGap = 20;
-	const ImageWidth = 300;
+	const ImageWidth = 200;
 
 	const getDriveThumbnailLink = (fileId: string) => `https://drive.google.com/thumbnail?id=${fileId}`;
 	const getDriveImageLink = (fileId: string) => `https://drive.google.com/file/d/${fileId}/view`;
@@ -51,7 +51,7 @@
 			</p>
 
 			<a class="imgc" href={getDriveImageLink(entry.id)}>
-				<img src={getDriveThumbnailLink(entry.id)} alt="" />
+				<img src={getDriveThumbnailLink(entry.id)} loading="lazy" alt="" />
 			</a>
 		</div>
 	{/each}
@@ -60,7 +60,7 @@
 <style>
 	#galleryview-container {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, 300px);
+		grid-template-columns: repeat(auto-fill, var(--image-width));
 
 		grid-auto-rows: var(--R);
 		grid-row-gap: var(--G);

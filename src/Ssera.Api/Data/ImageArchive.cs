@@ -14,9 +14,4 @@ public static class ImageArchive
         Hot,
         Misc
     }
-
-    public enum Member
-    {
-
-    }
 }

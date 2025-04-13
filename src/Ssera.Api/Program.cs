@@ -29,8 +29,8 @@ builder.Services.AddCors();
 // AND RETURN A STRUCTURED RESPONSE
 builder.Services.Configure<RouteHandlerOptions>(options => options.ThrowOnBadRequest = true);
 
-//builder.Services.AddHostedService<EventArchiveWorker>();
-//builder.Services.AddHostedService<ImageArchiveWorker>();
+builder.Services.AddHostedService<EventArchiveWorker>();
+builder.Services.AddHostedService<ImageArchiveWorker>();
 
 builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, DefaultMapper>(EventArchiveEventKind.TeasersMV.AsHuman());
 builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, PerformanceVarietyRealityMapper>(EventArchiveEventKind.Performance.AsHuman());
@@ -64,6 +64,7 @@ else
     };
 
     // allow all networks because the app is ran exclusively behind a single trusted proxy
+    // and ForwardLimit is 1
     options.KnownNetworks.Clear();
     options.KnownProxies.Clear();
     _ = app.UseForwardedHeaders(options);

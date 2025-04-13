@@ -27,7 +27,7 @@ public sealed partial class GetImages
         [GreaterThanOrEqual(1)]
         public int Page { get; init; }
 
-        [GreaterThanOrEqual(10), LessThanOrEqual(5000)]
+        [GreaterThanOrEqual(10), LessThanOrEqual(1000)]
         public int PageSize { get; init; }
     }
 
@@ -56,7 +56,7 @@ public sealed partial class GetImages
 
         if (request.Eras is { Length: > 0 } eras)
         {
-            var dbEras = eras.Select(EraToTopLevelKind).ToList();
+            var dbEras = eras.Select(EraToTopLevelKind).ToArray();
             query = query.Where(e => dbEras.Contains(e.TopLevelKind));
         }
 

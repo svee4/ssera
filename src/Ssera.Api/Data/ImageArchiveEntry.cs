@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Ssera.Api.Data;
 
@@ -46,5 +47,15 @@ public sealed class ImageArchiveEntry
             _date = date,
             Tags = [.. tags]
         };
+    }
+
+    private sealed class Configuration : IEntityTypeConfiguration<ImageArchiveEntry>
+    {
+        public void Configure(EntityTypeBuilder<ImageArchiveEntry> builder)
+        {
+            builder.HasIndex(m => m.Date);
+            builder.HasIndex(m => m.Member);
+            builder.HasIndex(m => m.TopLevelKind);
+        }
     }
 }
