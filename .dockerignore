@@ -4,16 +4,16 @@
 **/obj
 **/out
 
-sqlite.db
-sqlite.db-shm
-sqlite.db-wal
-backup.sqlite.db
+**/sqlite.db
+**/sqlite.db-shm
+**/sqlite.db-wal
+**/backup.sqlite.db
 
 **/.vscode
 **/.vs
 **/.idea
 
 **/node_modules
-.eslint*
-.prettier*
-.svelte-kit
+**/.eslint*
+**/.prettier*
+**/.svelte-kit

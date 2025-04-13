@@ -3,8 +3,8 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 as sdk
 WORKDIR /app
 
 COPY . .
-
 WORKDIR /app/src/Ssera.Api
+
 RUN dotnet restore
 RUN dotnet publish -c Release -o out
 
