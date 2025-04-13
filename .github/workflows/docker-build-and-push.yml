@@ -38,7 +38,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5.3.0
         with:
-          context: ./src/Ssera.Client
+          context: .
           file: ./src/Ssera.Client/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
@@ -75,7 +75,7 @@ jobs:
         id: push
         uses: docker/build-push-action@v5.3.0
         with:
-          context: ./src/Ssera.Api
+          context: .
           file: ./src/Ssera.Api/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
