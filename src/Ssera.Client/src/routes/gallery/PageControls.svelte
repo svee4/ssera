@@ -1,32 +1,53 @@
 <script lang="ts">
+	import Page from "../+page.svelte";
+
     let { 
         totalResults,
-        page,
+        page = $bindable(),
         pageSize,
         maxPage, 
-        setPage 
-    }: { totalResults: number, pageSize: number, page: number, maxPage: number, setPage: (page: number) => void } = $props();
+    }: { totalResults: number, pageSize: number, page: number, maxPage: number } = $props();
     
-    let localPage = $state(page);
-
     let start = $derived((page - 1) * pageSize + 1);
     
     let tmpEnd = $derived(page * pageSize);
     let end = $derived(tmpEnd > totalResults ? totalResults : tmpEnd);
 
-    const onsubmit = () => {
-        setPage(localPage);
-        return false;
+    let inputValue = $state(page);
+
+    $effect(() => {
+        if (page > maxPage) {
+            page = maxPage;
+        } else if (page < 1) {
+            page = 1;
+        }
+    });
+
+    const setPage = (value: number) => {
+        if (value === page) {
+            return;
+        }
+
+        if (value > maxPage) {
+            page = maxPage;
+        } else if (value < 1) {
+            page = 1;
+        }
+        else {
+            page = value;
+        }
+
+        inputValue = page;
     }
 </script>
 
 <div id="container">
-    <form onsubmit={onsubmit}>
+    <div>
         <button
-            onclick={() => { localPage--; return true; }}
+            onclick={() => setPage(page - 1)}
             title="Previous page"
             aria-label="Previous page"
-            disabled={(localPage - 1) < 1}
+            disabled={(page - 1) < 1}
             style="width: 4ch"
             type="submit"
         >{"<"}</button>
@@ -34,7 +55,8 @@
         <input
             type="number" 
             inputmode="numeric"
-            bind:value={localPage}
+            bind:value={inputValue}
+            onblur={() => setPage(inputValue)}
             min="1"
             max={maxPage}
             title="Choose page"
@@ -43,14 +65,14 @@
         />
 
         <button
-            onclick={() => { localPage++; return true; }}
+            onclick={() => setPage(page + 1)}
             title="Next page"
             aria-label="Next page"
-            disabled={(localPage + 1) > maxPage}
+            disabled={(page + 1) > maxPage}
             style="width: 4ch"
             type="submit"
         >{">"}</button>   
-     </form>
+    </div>
 
      <p>
         Showing {start} - {end} of {totalResults} results

@@ -44,15 +44,15 @@
     let entries: Entry[] = $state([]);
 
     let pageStore = queryParam<number>("page", {
-        encode: v => v.toString(),
-        decode: v => v && !isNaN(parseInt(v)) ? parseInt(v) : 1,
+        encode: v => v.toString(), 
+        decode: v => parseInt(v ?? "1"),
         defaultValue: 1
     }, {
         showDefaults: true,
         pushHistory: false,
         sort: true
     });
-        
+    
     let pageSize = $derived(filters.pageSize);
 
     let totalResults = $state(0);
@@ -123,11 +123,8 @@
         }
     }
 
-    const setPage = (newPage: number) => {
-        console.log(newPage);
-        pageStore.set(newPage);
-        applyNewFilters();
-    }
+    // cursed but works for now
+    pageStore.subscribe(() => applyNewFilters());
 
     onMount(() => fetchEntries());
 </script>
@@ -162,10 +159,9 @@
     <PagedGalleryView
         entries={entries} 
         totalResults={totalResults} 
-        page={$pageStore} 
+        bind:page={$pageStore} 
         pageSize={pageSize} 
         maxPage={maxPage} 
-        setPage={setPage} 
     />
 
     {/if}

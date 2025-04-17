@@ -26,7 +26,7 @@
 		Source: <a href="https://github.com/svee4/ssera">Github</a>
 	</p>
 	<p>
-		Report problems: <a href="https://github.com/svee4/ssera/issues/new">Github issue</a>
+		Report issues: <a href="https://github.com/svee4/ssera/issues/new">Github issue</a>
 	</p>
 </section>
 

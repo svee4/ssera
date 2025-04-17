@@ -6,30 +6,27 @@
     let { 
         entries,
         totalResults,
-        page,
+        page = $bindable(),
         pageSize,
         maxPage,
-        setPage
-    } : { entries: Entry[], totalResults: number, page: number, pageSize: number, maxPage: number, setPage: (page: number) => void } = $props();
+    } : { entries: Entry[], totalResults: number, page: number, pageSize: number, maxPage: number } = $props();
 </script>
 
 <div id="container">
     <PageControls
+        bind:page={page}
         totalResults={totalResults}
-        page={page}
         pageSize={pageSize}
         maxPage={maxPage}
-        setPage={setPage}
     ></PageControls>
     
     <GalleryView entries={entries}></GalleryView>
 
     <PageControls
+        bind:page={page}
         totalResults={totalResults}
-        page={page}
         pageSize={pageSize}
         maxPage={maxPage}
-        setPage={setPage}
     ></PageControls>
 </div>
 
