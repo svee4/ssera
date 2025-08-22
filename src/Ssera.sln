@@ -5,31 +5,34 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ssera.Api", "Ssera.Api\Ssera.Api.csproj", "{BF056466-9D62-45F3-987D-075C7443131B}"
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "Ssera.Client", "Ssera.Client\Ssera.Client.esproj", "{829D13A7-693D-49CE-8526-7B9095BE3758}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFiles", "{ACD03CB3-655A-4834-ACFB-8402E81C1D1A}"
 	ProjectSection(SolutionItems) = preProject
-		..\README.md = ..\README.md
 		..\.dockerignore = ..\.dockerignore
 		..\.gitignore = ..\.gitignore
+		..\README.md = ..\README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ssera.Client", "Ssera.Client\Ssera.Client.csproj", "{80D35234-E477-4534-B71E-A63E748CE50C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{BF056466-9D62-45F3-987D-075C7443131B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BF056466-9D62-45F3-987D-075C7443131B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF056466-9D62-45F3-987D-075C7443131B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF056466-9D62-45F3-987D-075C7443131B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{829D13A7-693D-49CE-8526-7B9095BE3758}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{829D13A7-693D-49CE-8526-7B9095BE3758}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{829D13A7-693D-49CE-8526-7B9095BE3758}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{829D13A7-693D-49CE-8526-7B9095BE3758}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{80D35234-E477-4534-B71E-A63E748CE50C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80D35234-E477-4534-B71E-A63E748CE50C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80D35234-E477-4534-B71E-A63E748CE50C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80D35234-E477-4534-B71E-A63E748CE50C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {40D3EE1A-55CF-46B0-A86F-F5E35DF1E644}
 	EndGlobalSection
 EndGlobal

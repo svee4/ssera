@@ -1,0 +1,13 @@
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    font-family: Arial;
+}
+
+html:has(#page[data-theme="dark"]) {
+/*    background-color: var(--rz-base-900);*/
+}
+
+html:has(#page[data-theme="light"]) {
+/*    background-color: var(--rz-base-100);*/
+}

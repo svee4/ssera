@@ -1,0 +1,34 @@
+@inherits LayoutComponentBase
+
+
+<RadzenLayout>
+
+    <RadzenHeader>
+        <RadzenStack
+            Style="height: 100%; padding: 6px;"
+            Orientation="Orientation.Horizontal"
+            JustifyContent="JustifyContent.SpaceBetween"
+            AlignItems="AlignItems.Center">
+
+            <div></div>
+
+            <RadzenStack Orientation="Orientation.Horizontal">
+                <RadzenLink Target="/">Home</RadzenLink>
+                <RadzenLink Target="/events">Events</RadzenLink>
+                <RadzenLink Target="/gallery">Gallery</RadzenLink>
+                <RadzenLink Target="/log">Log</RadzenLink>
+            </RadzenStack>
+
+            <div>
+                <ThemePicker></ThemePicker>
+            </div>
+
+        </RadzenStack>
+    </RadzenHeader>
+
+    <RadzenBody>
+        @Body
+    </RadzenBody>
+</RadzenLayout>
+
+
