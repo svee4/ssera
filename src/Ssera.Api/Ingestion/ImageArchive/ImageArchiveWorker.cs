@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Ssera.Api.Data;
 using Ssera.Api.Features.History;
 using Ssera.Api.Infra.Configuration;
+using Ssera.Shared.Data;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Text;

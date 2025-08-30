@@ -1,0 +1,98 @@
+@using Ssera.Shared.Data
+@using Ssera.Shared.Images.Filters
+
+<RadzenStack Orientation="Orientation.Horizontal" Wrap="FlexWrap.Wrap">
+
+    <RadzenStack Orientation="Orientation.Vertical">
+        <RadzenDropDown
+            Data="@_allOrderByTypes"
+            TextProperty="@nameof(KeyValuePair<,>.Key)"
+            ValueProperty="@nameof(KeyValuePair<,>.Value)"
+            @bind-Value="@_viewModel.OrderByType"
+        />
+
+        <RadzenDropDown
+            Data="@_allSortTypes"
+            TextProperty="@nameof(KeyValuePair<,>.Key)"
+            ValueProperty="@nameof(KeyValuePair<,>.Value)"
+            @bind-Value="@_viewModel.SortType"
+        />
+    </RadzenStack>
+
+  @*   <RadzenStack Orientation="Orientation.Horizontal">
+        @foreach (var chunk in _allEras.Chunk(3))
+        {
+            <RadzenStack Orientation="Orientation.Vertical">
+                @foreach (var (text, value) in chunk)
+                {
+                    var identifier = $"era-{value}";
+
+                    <RadzenStack Orientation="Orientation.Horizontal">
+                        <RadzenCheckBox
+                            TValue="bool"
+                            Name="@identifier"
+                            Value="@_viewModel.Eras.Contains(value)"
+                            ValueChanged="(v) => _ = v ? _viewModel.Eras.Add(value) : _viewModel.Eras.Remove(value)"
+                        />
+
+                        <RadzenLabel Text="@text" Component="@identifier" />
+                    </RadzenStack>
+                }
+            </RadzenStack>
+        }
+    </RadzenStack> *@
+
+    <fieldset style="padding: 2px;">
+        <legend>
+            Eras
+        </legend>
+
+        <Ssera.Client.Infra.Components.MultiSelectCheckBoxList
+            T="Era"
+            Data="@_allEras"
+            @bind-Values="@_viewModel.Eras"
+            ColumnCount="3"
+            Style="padding: 6px;"
+         />
+
+    </fieldset>
+
+    <Ssera.Client.Infra.Components.MultiSelectCheckBoxList
+        T="GroupMember"
+        Data="@_allMembers"
+        @bind-Values="@_viewModel.Members"
+        ColumnCount="2"
+        Style="height: min-content; gap: 10px"
+     />
+
+    @* <RadzenCheckBoxList
+        Data="@_allMembers"
+        TextProperty="@nameof(KeyValuePair<,>.Key)"
+        ValueProperty="@nameof(KeyValuePair<,>.Value)"
+        @bind-Value="@_viewModel.Members"
+        Wrap="FlexWrap.Wrap"
+    /> *@
+
+  @*   <RadzenStack Orientation="Orientation.Vertical">
+        <RadzenDropDown
+            TValue="IEnumerable<string>"
+            Data="@_tagsDropdownData"
+            @bind-Value="@_viewModel.Tags"
+            Multiple="true"
+            AllowFiltering="true"
+            LoadData="@TagsDropdownLoadData"
+        />
+
+        <div>
+            @foreach (var tag in _viewModel.Tags)
+            {
+                <p>@tag</p>
+            }
+        </div>
+
+    </RadzenStack> *@
+
+    <RadzenDropDown Data="@_allPageSizes"
+                    @bind-Value="@_viewModel.PageSize" />
+
+</RadzenStack>

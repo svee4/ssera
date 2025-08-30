@@ -1,4 +1,5 @@
 using Ssera.Api.Data;
+using Ssera.Shared.Data;
 using System.Collections.Immutable;
 using static Ssera.Api.Data.ImageArchive;
 

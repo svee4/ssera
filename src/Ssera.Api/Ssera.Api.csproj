@@ -24,4 +24,8 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Ssera.Shared\Ssera.Shared.csproj" />
+    </ItemGroup>
 </Project>

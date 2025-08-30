@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Ssera.Shared.Data;
 
 namespace Ssera.Api.Data;
 

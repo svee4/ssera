@@ -1,8 +1,3 @@
- <HeadContent>
-    <RadzenTheme Theme="material" @rendermode="RenderMode.InteractiveWebAssembly" />
-    <script src="_content/Radzen.Blazor/Radzen.Blazor.js?v=@(typeof(Radzen.Colors).Assembly.GetName().Version)"></script>
- </HeadContent>
-
 <Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />

@@ -4,6 +4,7 @@ using Immediate.Validations.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Ssera.Api.Data;
+using Ssera.Shared.Events.Filters;
 
 namespace Ssera.Api.Features.Events;
 

@@ -1,8 +1,10 @@
 @inherits LayoutComponentBase
 
+<HeadContent>
+    <RadzenTheme Theme="@_theme" @rendermode="RenderMode.InteractiveWebAssembly" />
+</HeadContent>
 
 <RadzenLayout>
-
     <RadzenHeader>
         <RadzenStack
             Style="height: 100%; padding: 6px;"
@@ -20,7 +22,11 @@
             </RadzenStack>
 
             <div>
-                <ThemePicker></ThemePicker>
+                <RadzenDropDown TValue="string"
+                                Data="Ssera.Client.Infra.ThemeService.Themes"
+                                AllowSelectAll="false"
+                                Value="_theme"
+                                Change="@(v => SetTheme((string)v))"></RadzenDropDown>
             </div>
 
         </RadzenStack>
@@ -31,4 +37,4 @@
     </RadzenBody>
 </RadzenLayout>
 
-
+<RadzenComponents />

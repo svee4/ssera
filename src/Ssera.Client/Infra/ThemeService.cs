@@ -1,12 +1,11 @@
-using System.Diagnostics;
-
 namespace Ssera.Client.Infra;
 
 public sealed class ThemeService(LocalStorageService localStorage, Radzen.ThemeService radzenThemeService)
 {
     public static IReadOnlyList<string> Themes { get; } = [.. Radzen.Themes.Free.Select(t => t.Value)];
 
-    private const string DefaultTheme = "material-dark";
+    public static string DefaultTheme => "material-dark";
+
     private const string ThemeKey = "Ssera.ThemeService.Theme";
 
     private readonly LocalStorageService _localStorage = localStorage;

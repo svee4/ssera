@@ -1,0 +1,41 @@
+@typeparam T
+
+@{
+    var style = $"display: grid; grid-template-columns: repeat({ColumnCount}, auto); gap: 6px;{Style}";
+}
+
+<div style="@style">
+    @foreach (var (index, chunk) in Data.Chunk(ColumnCount).Index())
+    {
+        @foreach (var (text, value) in chunk)
+        {
+            var identifier = $"{_componentId}-{value}";
+
+            RenderFragment fragment = (_) =>
+            {
+                <RadzenCheckBox
+                    TValue="bool"
+                    Name="@identifier"
+                    Value="@Values.Contains(value)"
+                    ValueChanged="v => OnCheckboxValueChanged(v, value)" />
+
+                <RadzenLabel
+                    Text="@text"
+                    Component="@identifier"
+                    Style="margin-left: 6px;" />
+            };
+
+            <div>
+                @if (Template is not null)
+                {
+                    @Template(fragment)
+                }
+                else
+                {
+                    @fragment
+                }
+            </div>
+        }
+    }
+
+</div>

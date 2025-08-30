@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ssera.Client", "Ssera.Client\Ssera.Client.csproj", "{80D35234-E477-4534-B71E-A63E748CE50C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ssera.Shared", "Ssera.Shared\Ssera.Shared.csproj", "{4D881AFE-A572-48B0-AEB4-C98FFBA2AD66}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,6 +30,10 @@ Global
 		{80D35234-E477-4534-B71E-A63E748CE50C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80D35234-E477-4534-B71E-A63E748CE50C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{80D35234-E477-4534-B71E-A63E748CE50C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D881AFE-A572-48B0-AEB4-C98FFBA2AD66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D881AFE-A572-48B0-AEB4-C98FFBA2AD66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D881AFE-A572-48B0-AEB4-C98FFBA2AD66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D881AFE-A572-48B0-AEB4-C98FFBA2AD66}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

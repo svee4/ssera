@@ -1,9 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
+        <LangVersion>preview</LangVersion>
         <NoWarn>$(NoWarn);CA2007</NoWarn>
     </PropertyGroup>
 
@@ -11,6 +9,10 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.8" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.8" PrivateAssets="all" />
         <PackageReference Include="Radzen.Blazor" Version="7.2.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Ssera.Shared\Ssera.Shared.csproj" />
     </ItemGroup>
 
 </Project>
