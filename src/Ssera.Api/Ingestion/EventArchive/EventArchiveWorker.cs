@@ -3,9 +3,9 @@ using Google.Apis.Util;
 using Microsoft.EntityFrameworkCore;
 using Ssera.Api.Data;
 using Ssera.Api.Features.History;
-using Ssera.Api.Infra.Configuration;
 using Ssera.Api.Ingestion.EventArchive.Mappers;
 using System.Globalization;
+using Ssera.Shared.Configuration;
 
 namespace Ssera.Api.Ingestion.EventArchive;
 
@@ -74,7 +74,7 @@ public sealed class EventArchiveWorker(
         await using var scope = _serviceScopeFactory.CreateAsyncScope();
 
         using var service = new Google.Apis.Sheets.v4.SheetsService(
-            new BaseClientService.Initializer 
+            new BaseClientService.Initializer
             {
                 ApiKey = _configuration.GetRequiredValue("GoogleApiKey"),
                 ApplicationName = "Ssera"
@@ -100,7 +100,7 @@ public sealed class EventArchiveWorker(
 
             if (!Data.EventArchive.Names.HumanToEnum.TryGetValue(sheetName, out var sheetType))
             {
-                _logger.LogError("Sheet name {SheetName} could not be mapped to enum", sheetName);
+                _logger.LogDebug("Sheet name {SheetName} could not be mapped to enum", sheetName);
                 continue;
             }
 

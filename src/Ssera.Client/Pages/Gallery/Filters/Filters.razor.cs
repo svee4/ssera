@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components;
 using Radzen;
 using Ssera.Shared.Data;
 using Ssera.Shared.Images.Filters;
@@ -26,15 +27,29 @@ public partial class Filters
         .Select(v => KeyValuePair.Create(v.GetDisplayName(), v))
         .ToArray();
 
+    private static readonly IReadOnlyList<KeyValuePair<string, TagsFilterType>> _allTagsSelectionTypes =
+        [
+            KeyValuePair.Create("Include only selected tags", TagsFilterType.Include),
+            KeyValuePair.Create("Exclude selected tags", TagsFilterType.Exclude)
+        ];
+
     private static readonly IReadOnlyList<int> _allPageSizes = [50, 100, 500, 1000];
 
-    private FiltersViewModel _viewModel = new();
+    private Variant _designVariant = Variant.Outlined;
+
+    private FiltersModel _viewModel = new();
 
     private IReadOnlyList<string> _tagsDropdownData = ["meow", "preview", "press", "something else"];
+
+    [Parameter, EditorRequired]
+    public EventCallback<FiltersModel> OnApplyFilters { get; set; }
 
     private async Task TagsDropdownLoadData(LoadDataArgs args)
     {
         await Task.Yield();
     }
+
+    private async Task ApplyFilters()
+        => await OnApplyFilters.InvokeAsync(_viewModel);
 
 }

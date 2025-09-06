@@ -3,7 +3,7 @@ using Immediate.Handlers.Shared;
 using Immediate.Validations.Shared;
 using Microsoft.EntityFrameworkCore;
 using Ssera.Api.Data;
-using Ssera.Shared.Data;
+using Ssera.Shared.Images;
 using Ssera.Shared.Images.Filters;
 using System.Diagnostics;
 
@@ -14,46 +14,34 @@ namespace Ssera.Api.Features.Images;
 public sealed partial class GetImages
 {
     [Validate]
-    public sealed partial record Query : IValidationTarget<Query>
+    public sealed partial record Request : IValidationTarget<Request>
     {
-        public string[]? Tags { get; init; }
-        public string? TagSearch { get; init; }
-
-        public Era[]? Eras { get; init; }
-
-        public GroupMember[]? Members { get; init; }
-
-        public OrderByType? OrderBy { get; init; }
-        public SortType? Sort { get; init; }
-
-        [GreaterThanOrEqual(1)]
-        public int Page { get; init; }
-
-        [GreaterThanOrEqual(10), LessThanOrEqual(1000)]
-        public int PageSize { get; init; }
+        public GetImagesQuery RequestParameters { get; init; } = null!;
     }
 
-    public sealed record Response(List<Result> Results, int TotalResults);
-
-    public sealed record Result(
-        string Id,
-        GroupMember Member,
-        Era? Era,
-        IReadOnlyList<string> Tags,
-        DateTime Date);
-
-    private static async ValueTask<Response> HandleAsync(Query request, ApiDbContext dbContext, CancellationToken token)
+    private static async ValueTask<GetImagesResponse> HandleAsync(
+        Request requestBase,
+        ApiDbContext dbContext,
+        CancellationToken token)
     {
+        var request = requestBase.RequestParameters;
+
         var query = dbContext.ImageArchive.AsQueryable();
 
-        if (request.Tags is { Length: > 0 } tags)
+        if (request.TagsFilter is { } tagsFilter)
         {
-            query = query.Where(e => e.Tags.Any(t => tags.Contains(t.Tag)));
-        }
+            var tags = tagsFilter.Tags;
 
-        if (request.TagSearch is { } tagSearch)
-        {
-            query = query.Where(e => e.Tags.Any(t => EF.Functions.Like(t.Tag, $"%{tagSearch}%")));
+            query = tagsFilter.TagsSelectionType switch
+            {
+                TagsFilterType.Include => query.Where(entry =>
+                    entry.Tags.Any(tag => tags.Contains(tag.Tag))),
+
+                TagsFilterType.Exclude => query.Where(entry =>
+                    !entry.Tags.Any(tag => tags.Contains(tag.Tag))),
+
+                var v => throw new UnreachableException($"Unhandled '{nameof(TagsFilterType)}' value '{v}'"),
+            };
         }
 
         if (request.Eras is { Length: > 0 } eras)
@@ -98,21 +86,21 @@ public sealed partial class GetImages
 
         if (skips > count)
         {
-            return new Response([], count);
+            return new GetImagesResponse([], count);
         }
 
         query = query.Skip(skips).Take(request.PageSize);
 
-        var resultsQuery = query.Select(entry => new Result(
+        var resultsQuery = query.Select(entry => new GetImagesResponse.Image(
                 entry.FileId,
                 entry.Member,
                 TopLevelKindToEra(entry.TopLevelKind),
                 entry.Tags.Select(t => t.Tag).ToList(),
                 entry.Date
-            ));
+        ));
 
         var results = await resultsQuery.ToListAsync(token);
-        return new Response(results, count);
+        return new GetImagesResponse(results, count);
     }
 
     private static ImageArchive.TopLevelKind EraToTopLevelKind(Era era) =>

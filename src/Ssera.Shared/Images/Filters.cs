@@ -1,4 +1,3 @@
-
 using System.Diagnostics;
 using System.Text.Json.Serialization;
 
@@ -27,6 +26,13 @@ public enum Era
     PerfectNight,
     Easy,
     Crazy,
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter<TagsFilterType>))]
+public enum TagsFilterType
+{
+    Include = 1,
+    Exclude
 }
 
 public static class ImagesFiltersExtensions

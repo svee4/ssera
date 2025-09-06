@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Components;
-using System.Threading.Tasks;
 
 namespace Ssera.Client.Infra.Components;
 
-public partial class MultiSelectCheckBoxList<T>
+public partial class SseraMultiSelectCheckBoxList<T>
 {
     private readonly string _componentId = Guid.NewGuid().ToString();
 

@@ -7,12 +7,23 @@ namespace Ssera.Api.Data;
 public sealed class ImageArchiveEntry
 {
     public int Id { get; private set; }
+
+    /// <summary>Google drive file id</summary>
     public string FileId { get; private set; } = null!;
+
+    /// <summary>Member who's archive the image is from.</summary>
     public GroupMember Member { get; private set; }
+
     public ImageArchive.TopLevelKind TopLevelKind { get; private set; }
 
+    /// <summary>Image width in pixels.</summary>
+    public int Width { get; private set; }
+
+    /// <summary>Image height in pixels.</summary>
+    public int Height { get; private set; }
+
     /// <summary>
-    /// UTC
+    ///     Date when the image was taken or published, in UTC.
     /// </summary>
     public DateTime Date
     {
@@ -31,6 +42,8 @@ public sealed class ImageArchiveEntry
         GroupMember member,
         ImageArchive.TopLevelKind topLevelKind,
         DateTime date,
+        int width,
+        int height,
         IEnumerable<ImageArchiveTag> tags)
     {
         if (date.Kind != DateTimeKind.Utc)
@@ -45,7 +58,9 @@ public sealed class ImageArchiveEntry
             FileId = fileId,
             Member = member,
             TopLevelKind = topLevelKind,
-            _date = date,
+            Date = date,
+            Width = width,
+            Height = height,
             Tags = [.. tags]
         };
     }

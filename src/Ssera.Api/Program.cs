@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Ssera.Api;
 using Ssera.Api.Data;
-using Ssera.Api.Infra.Configuration;
 using Ssera.Api.Infra.ExceptionHandling;
 using Ssera.Api.Ingestion.EventArchive;
 using Ssera.Api.Ingestion.EventArchive.Mappers;
 using Ssera.Api.Ingestion.ImageArchive;
+using Ssera.Shared.Configuration;
 
 [assembly: Behaviors(typeof(ValidationBehavior<,>))]
 
@@ -30,7 +30,7 @@ builder.Services.AddCors();
 builder.Services.Configure<RouteHandlerOptions>(options => options.ThrowOnBadRequest = true);
 
 //builder.Services.AddHostedService<EventArchiveWorker>();
-//builder.Services.AddHostedService<ImageArchiveWorker>();
+builder.Services.AddHostedService<ImageArchiveWorker>();
 
 builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, DefaultMapper>(EventArchiveEventKind.TeasersMV.AsHuman());
 builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, PerformanceVarietyRealityMapper>(EventArchiveEventKind.Performance.AsHuman());

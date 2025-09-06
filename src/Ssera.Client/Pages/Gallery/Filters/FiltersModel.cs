@@ -3,7 +3,7 @@ using Ssera.Shared.Images.Filters;
 
 namespace Ssera.Client.Pages.Gallery.Filters;
 
-public sealed class FiltersViewModel
+public sealed record FiltersModel
 {
     public OrderByType OrderByType { get; set; } = OrderByType.Date;
     public SortType SortType { get; set; } = SortType.Descending;
@@ -11,5 +11,7 @@ public sealed class FiltersViewModel
 
     public ISet<Era> Eras { get; set; } = new HashSet<Era>();
     public ISet<GroupMember> Members { get; set; } = new HashSet<GroupMember>();
-    public ISet<string> Tags { get; set; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+    public IEnumerable<string> Tags { get; set; } = [];
+    public TagsFilterType TagsSelectionType { get; set; } = TagsFilterType.Include;
 }

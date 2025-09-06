@@ -1,0 +1,29 @@
+
+<div class="@RadzenImplementationDetails.FormFieldClassname @RadzenImplementationDetails.GetVariantClassname(Variant)">
+    <fieldset style="@Style" class="@RadzenImplementationDetails.FormFieldContentClassname">
+
+        <legend style="padding-left: 6px;@LegendStyle">@Title</legend>
+
+        <div style="padding: 6px">
+            @ChildContent
+        </div>
+
+    </fieldset>
+</div>
+
+@code {
+    [Parameter]
+    public string Style { get; set; } = "";
+
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = "";
+
+    [Parameter]
+    public string LegendStyle { get; set; } = "";
+
+    [Parameter]
+    public Variant Variant { get; set; } = RadzenImplementationDetails.DefaultVariant;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

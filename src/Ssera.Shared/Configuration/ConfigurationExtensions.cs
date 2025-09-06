@@ -1,4 +1,6 @@
-namespace Ssera.Api.Infra.Configuration;
+using Microsoft.Extensions.Configuration;
+
+namespace Ssera.Shared.Configuration;
 
 public static class ConfigurationExtensions
 {

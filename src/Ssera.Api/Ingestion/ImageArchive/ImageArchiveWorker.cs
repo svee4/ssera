@@ -2,12 +2,13 @@ using Google.Apis.Drive.v3;
 using Microsoft.EntityFrameworkCore;
 using Ssera.Api.Data;
 using Ssera.Api.Features.History;
-using Ssera.Api.Infra.Configuration;
 using Ssera.Shared.Data;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Text;
+using Ssera.Shared.Configuration;
 using System.Text.RegularExpressions;
+
 using static Ssera.Api.Data.ImageArchive;
 using DriveFile = Google.Apis.Drive.v3.Data.File;
 
@@ -21,12 +22,16 @@ public sealed partial class ImageArchiveWorker(
 
     // https://drive.google.com/drive/folders/1Bdv2NdIyIwNbW-CTicgVIvTwQCc_Gkvs
     private const string ChaewonDriveId = "1Bdv2NdIyIwNbW-CTicgVIvTwQCc_Gkvs";
+
     // https://drive.google.com/drive/folders/1nG5cPDN_tm7QwQxOepZYDB9e-pvMyJ60
     private const string SakuraDriveId = "1nG5cPDN_tm7QwQxOepZYDB9e-pvMyJ60";
+
     // https://drive.google.com/drive/folders/1YzA7dJYuJKTLXqMt8DaFHtUsIMdO8ss7
     private const string YunjinDriveId = "1YzA7dJYuJKTLXqMt8DaFHtUsIMdO8ss7";
+
     // https://drive.google.com/drive/folders/17VlZ9XVr6DKB1o5pu1eo0BQoYXqfqjD9
     private const string KazuhaDriveId = "17VlZ9XVr6DKB1o5pu1eo0BQoYXqfqjD9";
+
     // https://drive.google.com/drive/folders/133Df8XIdz2fD6yMboAELj5mnxQILZ8VX
     private const string EunchaeDriveId = "133Df8XIdz2fD6yMboAELj5mnxQILZ8VX";
 
@@ -99,7 +104,7 @@ public sealed partial class ImageArchiveWorker(
 
             var state = new IngestionState(0, service, apiKey, publicLog);
 
-            IReadOnlyList<ImageArchiveInfo> archives = [
+            IEnumerable<ImageArchiveInfo> archives = [
                 new ImageArchiveInfo(GroupMember.Chaewon, ChaewonDriveId),
                 new ImageArchiveInfo(GroupMember.Sakura, SakuraDriveId),
                 new ImageArchiveInfo(GroupMember.Yunjin, YunjinDriveId),
@@ -154,6 +159,8 @@ public sealed partial class ImageArchiveWorker(
                             archiveEntry.Member,
                             topLevelEntry.Kind,
                             subLevelEntry.Date,
+                            entry.Width,
+                            entry.Height,
                             [
                                 ImageArchiveTag.Create(subLevelEntry.Name),
                                 .. entry.Tags.Select(ImageArchiveTag.Create)
@@ -256,7 +263,7 @@ public sealed partial class ImageArchiveWorker(
         if (!TryParseTopLevelKind(folder.Name, out var folderKind))
         {
             state.PublicLog.Add($"Skipping top level folder {folder.Name} in {state.Current}");
-            _logger.LogWarning("Could not parse kind of top level folder {TopLevelFolderName}", folder.Name);
+            _logger.LogDebug("Could not parse kind of top level folder {TopLevelFolderName}", folder.Name);
             return null;
         }
 
@@ -275,7 +282,7 @@ public sealed partial class ImageArchiveWorker(
             var match = folderNameRegex.Match(subFolder.Name);
             if (!match.Success)
             {
-                _logger.LogWarning("Regex name match failed");
+                _logger.LogDebug("Regex name match failed");
                 state.PublicLog.Add($"Failed to parse folder name " +
                     $"{subFolder.Name} in {folder.Name} in {state.Current}");
 
@@ -343,9 +350,29 @@ public sealed partial class ImageArchiveWorker(
 
                 entries.AddRange(innerEntries);
             }
+            else if (IsImage(file))
+            {
+                if (file.ImageMediaMetadata.Width is not { } width)
+                {
+                    state.PublicLog.Add($"File {file.Id} is missing width.");
+                    width = 0;
+                }
+
+                if (file.ImageMediaMetadata.Height is not { } height)
+                {
+                    state.PublicLog.Add($"File {file.Id} is missing height.");
+                    height = 0;
+                }
+                
+                var entry = new Entry(
+                    name, file.Name, file.Id,
+                    width, height, tags);
+
+                entries.Add(entry);
+            }
             else
             {
-                entries.Add(new Entry(name, file.Name, file.Id, tags));
+                _logger.LogInformation("Skipping non-image file {FileName}", file.Name);
             }
         }
 
@@ -373,14 +400,31 @@ public sealed partial class ImageArchiveWorker(
             CancellationToken token)
         {
             var request = util.Service.Files.List();
+
             request.Key = util.ApiKey;
             request.Q = $"'{folderId}' in parents";
-            return await request.ExecuteAsync(token);
+            request.Fields = "files(id,name,mimeType,imageMediaMetadata(width,height))";
+
+            var result = await request.ExecuteAsync(token);
+
+            if (result.NextPageToken is not null)
+            {
+                var warning = "Paging not implemented, results will be missing.";
+                if (!util.PublicLog.Contains(warning))
+                {
+                    util.PublicLog.Add(warning);
+                }
+            }
+
+            return result;
         }
     }
 
     private static bool IsFolder(DriveFile file) =>
         file.MimeType == "application/vnd.google-apps.folder";
+
+    private static bool IsImage(DriveFile file) =>
+        file.MimeType.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
 
     private static bool TryParseDate(ReadOnlySpan<char> input, out DateTime date) =>
         DateTime.TryParseExact(input, "yyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
