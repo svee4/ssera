@@ -95,6 +95,8 @@ public sealed partial class GetImages
                 entry.FileId,
                 entry.Member,
                 TopLevelKindToEra(entry.TopLevelKind),
+                entry.Width,
+                entry.Height,
                 entry.Tags.Select(t => t.Tag).ToList(),
                 entry.Date
         ));

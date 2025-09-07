@@ -1,0 +1,47 @@
+
+.masonry-container {
+    display: grid;
+    justify-content: center;
+
+    /* 
+        For the width we must account for the padding etc added to image width.
+        Its ugly but it works. Maybe theres a better solution out there somewhere...
+    */
+    grid-template-columns: repeat(auto-fill, var(--image-width));
+
+    grid-auto-rows: var(--row-height);
+    grid-row-gap: var(--row-gap);
+    column-gap: 8px;
+
+    --border-radius: var(--rz-card-border-radius);
+}
+
+.masonry-element {
+    display: flex;
+    flex-direction: column;
+    height: min-content;
+
+    background-color: var(--rz-card-background-color);
+    box-shadow: var(--rz-card-shadow);
+    border-radius: var(--border-radius);
+}
+
+
+.tags {
+    padding: 4px;
+}
+
+.primary-tag {
+    font-weight: 700;
+}
+
+.image-container {
+    display: flex;
+}
+
+.image {
+    object-fit: contain;
+    width: var(--image-width);
+    border-bottom-left-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius)
+}

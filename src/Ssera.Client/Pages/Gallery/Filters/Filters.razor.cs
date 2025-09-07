@@ -34,15 +34,23 @@ public partial class Filters
         ];
 
     private static readonly IReadOnlyList<int> _allPageSizes = [50, 100, 500, 1000];
+    private IReadOnlyList<string> _tagsDropdownData = ["meow", "preview", "press", "something else"];
 
     private Variant _designVariant = Variant.Outlined;
 
-    private FiltersModel _viewModel = new();
-
-    private IReadOnlyList<string> _tagsDropdownData = ["meow", "preview", "press", "something else"];
+    private FiltersModel _filters { get; set; } = new();
 
     [Parameter, EditorRequired]
     public EventCallback<FiltersModel> OnApplyFilters { get; set; }
+
+    [Parameter, EditorRequired]
+    public bool Loading { get; set; }
+
+    public void SetFilters(FiltersModel filters)
+    {
+        _filters = filters;
+        StateHasChanged();
+    }
 
     private async Task TagsDropdownLoadData(LoadDataArgs args)
     {
@@ -50,6 +58,6 @@ public partial class Filters
     }
 
     private async Task ApplyFilters()
-        => await OnApplyFilters.InvokeAsync(_viewModel);
+        => await OnApplyFilters.InvokeAsync(_filters);
 
 }

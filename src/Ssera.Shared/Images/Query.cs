@@ -69,6 +69,8 @@ public sealed record GetImagesResponse(List<GetImagesResponse.Image> Images, int
         string Id,
         GroupMember Member,
         Era? Era,
+        int Width,
+        int Height,
         IReadOnlyList<string> Tags,
         DateTime Date);
 }

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <NoWarn>$(NoWarn);CA2007;CA1308;CA1062</NoWarn>
+        <NoWarn>$(NoWarn);CA2007;CA1308;CA1062;CA1848</NoWarn>
         <UserSecretsId>7b8d7de1-4701-4e3e-af1d-3b3dd84c4afe</UserSecretsId>
     </PropertyGroup>
 

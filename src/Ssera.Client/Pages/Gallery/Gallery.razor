@@ -2,8 +2,12 @@
 
 <PageTitle>Gallery</PageTitle>
 
-<Ssera.Client.Pages.Gallery.Filters.Filters OnApplyFilters="OnFiltersChanged" />
+<RadzenStack Orientation="Orientation.Vertical">
+    <Ssera.Client.Pages.Gallery.Filters.Filters
+        @ref="@_filtersComponent"
+        OnApplyFilters="OnFiltersChanged"
+        Loading="Loading"
+    />
 
-<Results />
-
-
+    <Results Images="@Images" Loading="@Loading" />
+</RadzenStack>

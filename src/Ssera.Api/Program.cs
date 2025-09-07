@@ -30,7 +30,7 @@ builder.Services.AddCors();
 builder.Services.Configure<RouteHandlerOptions>(options => options.ThrowOnBadRequest = true);
 
 //builder.Services.AddHostedService<EventArchiveWorker>();
-builder.Services.AddHostedService<ImageArchiveWorker>();
+//builder.Services.AddHostedService<ImageArchiveWorker>();
 
 builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, DefaultMapper>(EventArchiveEventKind.TeasersMV.AsHuman());
 builder.Services.AddKeyedScoped<IEventArchiveSheetMapper, PerformanceVarietyRealityMapper>(EventArchiveEventKind.Performance.AsHuman());

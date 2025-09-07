@@ -15,6 +15,8 @@ public sealed class ImageApiService(HttpClient httpClient)
         var data = JsonSerializer.Serialize(query);
         var encoded = Uri.EscapeDataString(data);
 
+        await Task.Delay(TimeSpan.FromSeconds(2), token);
+
         var response = await _httpClient.GetFromJsonAsync<GetImagesResponse>(
             $"?requestParameters={encoded}", token)
             ?? throw new InvalidOperationException("Response was null");

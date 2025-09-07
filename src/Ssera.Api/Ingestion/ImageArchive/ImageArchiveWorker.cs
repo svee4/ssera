@@ -155,13 +155,13 @@ public sealed partial class ImageArchiveWorker(
                     foreach (var entry in subLevelEntry.Entries)
                     {
                         dbEntries.Add(ImageArchiveEntry.Create(
-                            entry.FileId,
-                            archiveEntry.Member,
-                            topLevelEntry.Kind,
-                            subLevelEntry.Date,
-                            entry.Width,
-                            entry.Height,
-                            [
+                            fileId: entry.FileId,
+                            member: archiveEntry.Member,
+                            topLevelKind: topLevelEntry.Kind,
+                            date: subLevelEntry.Date,
+                            width: entry.Width,
+                            height: entry.Height,
+                            tags: [
                                 ImageArchiveTag.Create(subLevelEntry.Name),
                                 .. entry.Tags.Select(ImageArchiveTag.Create)
                             ]));
@@ -186,7 +186,7 @@ public sealed partial class ImageArchiveWorker(
         catch (Exception e)
         {
             success = false;
-            _logger.LogError("Save failed: {Exception}", e);
+            _logger.LogError(e, "Save failed: {Exception}", e);
         }
 
         var end = DateTime.UtcNow;
@@ -306,7 +306,7 @@ public sealed partial class ImageArchiveWorker(
             subEntries.Add(new SubLevelEntry(date, name, [.. entries]));
         }
 
-        return new TopLevelEntry(folderKind, subEntries.ToImmutableArray());
+        return new TopLevelEntry(folderKind, [.. subEntries]);
     }
 
     private async Task<List<Entry>> IngestSubLevelFolder(
@@ -363,7 +363,7 @@ public sealed partial class ImageArchiveWorker(
                     state.PublicLog.Add($"File {file.Id} is missing height.");
                     height = 0;
                 }
-                
+
                 var entry = new Entry(
                     name, file.Name, file.Id,
                     width, height, tags);

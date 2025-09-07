@@ -10,14 +10,14 @@
                 Data="@_allOrderByTypes"
                 TextProperty="@nameof(KeyValuePair<,>.Key)"
                 ValueProperty="@nameof(KeyValuePair<,>.Value)"
-                @bind-Value="@_viewModel.OrderByType"
+                @bind-Value="@_filters.OrderByType"
             />
 
             <RadzenDropDown
                 Data="@_allSortTypes"
                 TextProperty="@nameof(KeyValuePair<,>.Key)"
                 ValueProperty="@nameof(KeyValuePair<,>.Value)"
-                @bind-Value="@_viewModel.SortType"
+                @bind-Value="@_filters.SortType"
             />
         </RadzenStack>
     </SseraFieldset>
@@ -25,7 +25,7 @@
     <SseraFieldset Title="Eras" Variant="@_designVariant">
         <SseraMultiSelectCheckBoxList
             Data="@_allEras"
-            @bind-Values="@_viewModel.Eras"
+            @bind-Values="@_filters.Eras"
             ColumnCount="3"
         />
     </SseraFieldset>
@@ -33,18 +33,19 @@
     <SseraFieldset Title="Members" Variant="@_designVariant">
         <SseraMultiSelectCheckBoxList
             Data="@_allMembers"
-            @bind-Values="@_viewModel.Members"
+            @bind-Values="@_filters.Members"
             ColumnCount="3"
          />
     </SseraFieldset>
 
     <!-- TODO: filtering based on date -->
+    <!-- TODO: filtering for only vertical or only horizontal images -->
 
     <SseraFieldset Title="Tags" Style="">
         <RadzenStack Orientation="Orientation.Vertical">
 
             <RadzenDropDown
-                @bind-Value="_viewModel.TagsSelectionType"
+                @bind-Value="_filters.TagsSelectionType"
                 Data="@_allTagsSelectionTypes"
                 TextProperty="@nameof(KeyValuePair<,>.Key)"
                 ValueProperty="@nameof(KeyValuePair<,>.Value)"
@@ -53,7 +54,7 @@
             <RadzenDropDown
                 TValue="IEnumerable<string>"
                 Data="@_tagsDropdownData"
-                @bind-Value="@_viewModel.Tags"
+                @bind-Value="@_filters.Tags"
                 Placeholder="Select tags"
                 Multiple="true"
                 AllowFiltering="true"
@@ -65,11 +66,23 @@
         </RadzenStack>
     </SseraFieldset>
 
-    <RadzenButton
-        Click="ApplyFilters"
-        Text="Apply filters"
-        ButtonStyle="ButtonStyle.Primary"
-        Style="height: min-content;"
-    />
+    <RadzenStack Orientation="Orientation.Vertical">
+
+        <SseraFieldset Title="Page size">
+            <RadzenDropDown
+                Data="@_allPageSizes"
+                @bind-Value="@_filters.PageSize"
+            />
+        </SseraFieldset>
+
+        <RadzenButton
+            Click="ApplyFilters"
+            Text="Apply filters"
+            ButtonStyle="ButtonStyle.Primary"
+            Style="height: min-content;"
+            Disabled="@Loading"
+        />
+
+    </RadzenStack>
 
 </RadzenStack>

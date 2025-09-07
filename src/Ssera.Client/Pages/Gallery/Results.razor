@@ -1,0 +1,45 @@
+
+@{
+    var style = $@"
+--image-width: {ImageWidth}px;
+--row-height: {RowHeight}px;
+--row-gap: {RowGap}px;
+".ReplaceLineEndings(" ");
+}
+
+@if (Loading)
+{
+    <RadzenProgressBarCircular
+        Style="align-self: center;"
+        ProgressBarStyle="ProgressBarStyle.Primary"
+        Mode="ProgressBarMode.Indeterminate"
+        ShowValue="false"
+    />
+}
+
+<div class="masonry-container" Style="@style">
+    @foreach (var image in Images)
+    {
+        <div class="masonry-element">
+            <p class="tags">
+                <span class="date">@image.Date.ToShortDateString()</span>
+                <span class="primary-tag">@image.Tags.First()</span>
+
+                @if (image.Tags.Count > 1)
+                {
+                    @for (int i = 1; i < image.Tags.Count - 1; i++)
+                    {
+                        <span>@image.Tags[i],</span>
+                    }
+
+                    <span>@image.Tags.Last()</span>
+                }
+            </p>
+
+            <a class="image-container" href="@GetDriveUrl(image.Id)">
+                <img class="image" src="@GetDriveThumbnailUrl(image.Id)" loading="lazy" />
+            </a>
+
+        </div>
+    }
+</div>
