@@ -5,7 +5,7 @@ using Ssera.Api.Data;
 namespace Ssera.Api.Features.History;
 
 [Handler]
-public sealed partial class AddHistory
+public static partial class AddHistory
 {
     [Validate]
     public sealed partial record Command(string WorkerName, string Message)

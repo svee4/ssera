@@ -11,7 +11,7 @@ namespace Ssera.Api.Features.Images;
 
 [Handler]
 [MapGet("/api/images")]
-public sealed partial class GetImages
+public static partial class GetImages
 {
     [Validate]
     public sealed partial record Request : IValidationTarget<Request>

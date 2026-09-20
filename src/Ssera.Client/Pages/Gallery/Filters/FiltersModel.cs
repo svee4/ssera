@@ -12,6 +12,11 @@ public sealed record FiltersModel
     public ISet<Era> Eras { get; set; } = new HashSet<Era>();
     public ISet<GroupMember> Members { get; set; } = new HashSet<GroupMember>();
 
-    public IEnumerable<string> Tags { get; set; } = [];
+    public IEnumerable<string> Tags
+    {
+        get;
+        set => field = value ?? [];
+    } = [];
+
     public TagsFilterType TagsSelectionType { get; set; } = TagsFilterType.Include;
 }

@@ -12,7 +12,7 @@ internal static class Helpers
     {
         try
         {
-            result = JsonSerializer.Deserialize<T>(value);
+            result = JsonSerializer.Deserialize<T>(value, JsonSerializerOptions.Web);
 
             if (!T.Validate(result).IsValid)
             {
@@ -57,7 +57,7 @@ public sealed partial record GetImagesQuery : IValidationTarget<GetImagesQuery>
 [Validate]
 public sealed partial record GetImagesQueryTagsFilter : IValidationTarget<GetImagesQueryTagsFilter>
 {
-    [MinLength(1)]
+    [NotEmpty]
     public string[] Tags { get; init; } = null!;
 
     public TagsFilterType TagsSelectionType { get; init; }

@@ -18,7 +18,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSqlite<ApiDbContext>(builder.Configuration.GetRequiredValue("ConnectionStrings:Sqlite"));
 
 builder.Services.AddSseraApiHandlers();
-builder.Services.AddSseraApiBehaviors();
 
 builder.Services.AddExceptionHandling();
 builder.Services.AddOpenApi();
@@ -53,7 +52,7 @@ if (app.Environment.IsDevelopment())
 {
     _ = app.MapOpenApi();
     _ = app.MapScalarApiReference();
-    _ = app.UseCors(options => options.AllowAnyOrigin());
+    _ = app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 }
 else
 {
@@ -65,7 +64,7 @@ else
 
     // allow all networks because the app is ran exclusively behind a single trusted proxy
     // and ForwardLimit is 1
-    options.KnownNetworks.Clear();
+    options.KnownIPNetworks.Clear();
     options.KnownProxies.Clear();
     _ = app.UseForwardedHeaders(options);
 

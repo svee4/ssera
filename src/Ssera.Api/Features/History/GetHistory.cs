@@ -7,7 +7,7 @@ namespace Ssera.Api.Features.History;
 
 [Handler]
 [MapGet("/api/history")]
-public sealed partial class GetHistory
+public static partial class GetHistory
 {
     public sealed record Query;
 

@@ -1,7 +1,7 @@
 <Project>
 	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
-		<LangVersion>13</LangVersion>
+		<TargetFramework>net10.0</TargetFramework>
+		<LangVersion>14</LangVersion>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<AnalysisLevel>latest-all</AnalysisLevel>
@@ -20,8 +20,9 @@
 			CA1819; Properties should not return arrays; Let me do what i want
 			CA2227; Collection properties should be read only; Let me do what i want
 			CA2234; Pass System.Uri objects instead of strings; ^
+			IDE0032; Use auto property; Intentional backing fields: date properties normalize DateTimeKind to UTC on access
 		-->
-		<NoWarn>CA1002;CA1008;CA1034;CA1054;CA1055;CA1056;CA1303;CA1508;CA1515;CA1815;CA1819;CA2227;CA2234</NoWarn>
+		<NoWarn>CA1002;CA1008;CA1034;CA1054;CA1055;CA1056;CA1303;CA1508;CA1515;CA1815;CA1819;CA2227;CA2234;IDE0032</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>

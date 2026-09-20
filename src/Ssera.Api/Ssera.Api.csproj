@@ -6,18 +6,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Immediate.Apis" Version="1.6.0" />
-        <PackageReference Include="Immediate.Handlers" Version="2.0.0" />
+        <PackageReference Include="Immediate.Apis" Version="6.4.0" />
+        <PackageReference Include="Immediate.Handlers" Version="4.2.0" />
 
-        <PackageReference Include="Google.Apis.Sheets.v4" Version="1.69.0.3694" />
-        <PackageReference Include="Google.Apis.Drive.v3" Version="1.69.0.3703" />
+        <PackageReference Include="Google.Apis.Sheets.v4" Version="1.75.0.4178" />
+        <PackageReference Include="Google.Apis.Drive.v3" Version="1.76.0.4261" />
 
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3" />
-        <PackageReference Include="Scalar.AspNetCore" Version="2.1.2" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
+        <PackageReference Include="Scalar.AspNetCore" Version="2.17.6" />
 
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.3" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.3" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.3">
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.12" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.12" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
