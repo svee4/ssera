@@ -1,0 +1,75 @@
+@page "/events"
+@using Ssera.Client.Infra.Components
+@using Ssera.Shared.Events
+
+<PageTitle>Events</PageTitle>
+
+<div id="events-page">
+    <EventsFilters
+        @ref="@_filtersComponent"
+        OnApplyFilters="OnFiltersChanged"
+        Loading="Loading"
+    />
+
+    <SseraError Error="_error" />
+
+    <SseraPagingControls
+        Page="_page"
+        PageChanged="OnPageChanged"
+        PageSize="@_filters.PageSize"
+        TotalResults="_totalResults"
+    />
+
+    @if (Loading)
+    {
+        <RadzenProgressBarCircular
+            Style="align-self: center;"
+            ProgressBarStyle="ProgressBarStyle.Primary"
+            Mode="ProgressBarMode.Indeterminate"
+            ShowValue="false"
+        />
+    }
+
+    <table id="events-table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Date</th>
+                <th scope="col">Type</th>
+                <th scope="col">Title</th>
+                <th scope="col">Link</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (var i = 0; i < _events.Count; i++)
+            {
+                var item = _events[i];
+                var number = ((_page - 1) * _filters.PageSize) + i + 1;
+
+                <tr style="--event-color: @item.Type.GetColor(); --event-color-dark: @item.Type.GetDarkColor()">
+                    <td class="col-number">@number</td>
+                    <td class="col-date">@item.Date.ToShortDateString()</td>
+                    <td class="col-type">@item.Type.GetDisplayName()</td>
+                    <td class="col-title">@(item.Title ?? "")</td>
+                    <td class="col-link">
+                        @if (item.Link is { } link)
+                        {
+                            <a href="@link">Link</a>
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <SseraPagingControls
+        Page="_page"
+        PageChanged="OnPageChanged"
+        PageSize="@_filters.PageSize"
+        TotalResults="_totalResults"
+    />
+</div>

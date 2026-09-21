@@ -1,11 +1,15 @@
 using Microsoft.AspNetCore.Components;
 
-namespace Ssera.Client.Pages.Gallery;
+namespace Ssera.Client.Infra.Components;
 
 public partial class SseraPagingControls
 {
-    private int _inputValue;
-    private int _inputRevision;
+    private static readonly IReadOnlyDictionary<string, object> _pageInputAttributes =
+        new Dictionary<string, object>
+        {
+            ["title"] = "Choose page",
+            ["aria-label"] = "Choose page",
+        };
 
     [Parameter]
     public int Page { get; set; }
@@ -25,11 +29,6 @@ public partial class SseraPagingControls
 
     private int End => Math.Min(Page * PageSize, TotalResults);
 
-    protected override void OnParametersSet()
-    {
-        _inputValue = Page;
-    }
-
     private async Task SetPage(int value)
     {
         var clamped = Math.Clamp(value, 1, MaxPage);
@@ -42,17 +41,6 @@ public partial class SseraPagingControls
         await PageChanged.InvokeAsync(clamped);
     }
 
-    private void ApplyInput()
-    {
-        var clamped = Math.Clamp(_inputValue, 1, MaxPage);
-
-        if (clamped == Page)
-        {
-            _inputValue = clamped;
-            _inputRevision++;
-            return;
-        }
-
-        _ = PageChanged.InvokeAsync(clamped);
-    }
+    private async Task OnPageInput(int value)
+        => await SetPage(value);
 }

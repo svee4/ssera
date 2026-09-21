@@ -27,7 +27,7 @@
                 />
             };
 
-            <div>
+            <div style="@(ItemStyle?.Invoke(value))">
                 @if (Template is not null)
                 {
                     @Template(fragment)

@@ -1,0 +1,34 @@
+<div class="paging">
+    <div class="paging-controls">
+        <RadzenButton
+            Text="<"
+            title="Previous page"
+            aria-label="Previous page"
+            Style="width: 4ch"
+            Disabled="@(Page - 1 < 1)"
+            Click="() => SetPage(Page - 1)"
+        />
+
+        <RadzenNumeric
+            TValue="int"
+            ShowUpDown="false"
+            Min="1"
+            Max="@MaxPage"
+            InputAttributes="_pageInputAttributes"
+            Style="width: 8ch"
+            Value="@Page"
+            ValueChanged="OnPageInput"
+        />
+
+        <RadzenButton
+            Text=">"
+            title="Next page"
+            aria-label="Next page"
+            Style="width: 4ch"
+            Disabled="@(Page + 1 > MaxPage)"
+            Click="() => SetPage(Page + 1)"
+        />
+    </div>
+
+    <p>Showing @Start - @End of @TotalResults results</p>
+</div>

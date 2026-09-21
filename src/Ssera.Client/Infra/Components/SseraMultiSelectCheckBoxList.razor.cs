@@ -22,6 +22,9 @@ public partial class SseraMultiSelectCheckBoxList<T>
     public string Style { get; set; } = "";
 
     [Parameter]
+    public Func<T, string>? ItemStyle { get; set; }
+
+    [Parameter]
     public RenderFragment<RenderFragment>? Template { get; set; }
 
     private async Task OnCheckboxValueChanged(bool state, T value)

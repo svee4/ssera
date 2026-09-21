@@ -10,6 +10,8 @@ public partial class MainLayout
 
     private string _theme = ThemeService.DefaultTheme;
 
+    private string ThemeMode => _theme.Contains("dark", StringComparison.OrdinalIgnoreCase) ? "dark" : "light";
+
     private async Task SetTheme(string theme)
     {
         await ThemeService.SetTheme(theme);

@@ -1,0 +1,65 @@
+@using Ssera.Client.Infra.Components
+@using Ssera.Shared.Events
+@using Ssera.Shared.Events.Filters
+
+<RadzenStack
+    Orientation="Orientation.Horizontal"
+    Wrap="FlexWrap.Wrap"
+>
+    <SseraFieldset Title="Order by">
+        <RadzenDropDown
+            Data="@_allOrderByTypes"
+            TextProperty="@nameof(KeyValuePair<,>.Key)"
+            ValueProperty="@nameof(KeyValuePair<,>.Value)"
+            @bind-Value="@_filters.OrderByType"
+            Style="@DirtyBackground(_filters.OrderByType != _appliedFilters.OrderByType)"
+        />
+    </SseraFieldset>
+
+    <SseraFieldset Title="Sort">
+        <RadzenDropDown
+            Data="@_allSortTypes"
+            TextProperty="@nameof(KeyValuePair<,>.Key)"
+            ValueProperty="@nameof(KeyValuePair<,>.Value)"
+            @bind-Value="@_filters.SortType"
+            Style="@DirtyBackground(_filters.SortType != _appliedFilters.SortType)"
+        />
+    </SseraFieldset>
+
+    <SseraFieldset Title="Event type">
+        <SseraMultiSelectCheckBoxList
+            Data="@_allEventTypes"
+            @bind-Values="@_filters.EventTypes"
+            ColumnCount="3"
+            ItemStyle="@GetEventTypeBackground"
+        />
+    </SseraFieldset>
+
+    <SseraFieldset Title="Search title">
+        <RadzenTextBox
+            @bind-Value="_filters.Search"
+            Style="@DirtyBackground(_filters.Search != _appliedFilters.Search)"
+        />
+    </SseraFieldset>
+
+    <SseraFieldset Title="Rows per page">
+        <RadzenNumeric
+            TValue="int"
+            Min="10"
+            Max="1000"
+            @bind-Value="_filters.PageSize"
+            Style="@DirtyBackground(_filters.PageSize != _appliedFilters.PageSize)"
+        />
+    </SseraFieldset>
+
+    <RadzenStack Orientation="Orientation.Vertical">
+        <RadzenButton
+            Click="ApplyFilters"
+            Text="Apply"
+            ButtonStyle="ButtonStyle.Primary"
+            Disabled="@Loading"
+        />
+
+        <p style="visibility: @(IsDirty ? "visible" : "hidden")">Unsaved changes</p>
+    </RadzenStack>
+</RadzenStack>

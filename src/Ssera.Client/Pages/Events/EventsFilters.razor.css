@@ -1,0 +1,5 @@
+::deep .rz-dropdown,
+::deep .rz-textbox,
+::deep .rz-numeric {
+    background-color: color-mix(in srgb, currentColor 8%, transparent);
+}
