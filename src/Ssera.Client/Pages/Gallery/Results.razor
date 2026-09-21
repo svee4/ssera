@@ -25,16 +25,19 @@
         <div class="masonry-element">
             <p class="tags">
                 <span class="date">@image.Date.ToShortDateString()</span>
-                <span class="primary-tag">@image.Tags.First()</span>
 
-                @if (image.Tags.Count > 1)
+                @{
+                    var tags = GetTags(image);
+                }
+
+                @if (tags.Count > 1)
                 {
-                    @for (int i = 1; i < image.Tags.Count - 1; i++)
-                    {
-                        <span>@image.Tags[i],</span>
-                    }
-
-                    <span>@image.Tags.Last()</span>
+                    <span class="primary-tag">@tags[0], </span>
+                    @string.Join(", ", tags.Skip(1))
+                }
+                else if (tags.Count == 1)
+                {
+                    <span class="primary-tag">@tags[0]</span>
                 }
             </p>
 

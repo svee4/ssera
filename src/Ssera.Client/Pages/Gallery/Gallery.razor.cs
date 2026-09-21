@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Ssera.Client.Infra;
 using Ssera.Shared.Images;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.Text.Json;
 using System.Web;
 
@@ -23,8 +24,14 @@ public partial class Gallery
     private IReadOnlyList<GetImagesResponse.Image> Images { get; set; } = [];
     private bool Loading { get; set; } = true;
 
-    private CancellationTokenSource _cts = new();
     private ApiException? _error;
+    private Filters.FiltersModel _filters = new();
+    private int _page = 1;
+    private int _totalResults;
+
+    private int MaxPage => _filters.PageSize <= 0
+        ? 1
+        : Math.Max(1, (int)Math.Ceiling((double)_totalResults / _filters.PageSize));
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -34,10 +41,11 @@ public partial class Gallery
             // or otherwise we get a flash of unstyled document.
             await Task.Yield();
 
-            var filters = DeserializeFiltersFromUrl();
-            _filtersComponent.SetFilters(filters);
+            _page = ReadPageFromUrl();
+            _filters = DeserializeFiltersFromUrl();
+            _filtersComponent.SetFilters(_filters);
 
-            await OnFiltersChanged(filters);
+            await FetchAsync();
 
             // YES we need StateHasChanged here NO i don't know why
             StateHasChanged();
@@ -46,53 +54,57 @@ public partial class Gallery
 
     private async Task OnFiltersChanged(Filters.FiltersModel filters)
     {
-        GetImagesQueryTagsFilter? tagsFilter = null;
+        _filters = filters;
+        _page = 1;
 
-        {
-            var tags = filters.Tags.ToArray();
-            if (tags.Length > 0)
-            {
-                tagsFilter = new GetImagesQueryTagsFilter
-                {
-                    Tags = tags,
-                    TagsSelectionType = filters.TagsSelectionType
-                };
-            }
-        }
+        await FetchAsync();
 
-        var query = new GetImagesQuery
-        {
-            PageSize = filters.PageSize,
-            OrderBy = filters.OrderByType,
-            Sort = filters.SortType,
-            Eras = [.. filters.Eras],
-            Members = [.. filters.Members],
-            TagsFilter = tagsFilter
-        };
+        SerializeFiltersToUrl();
+        _filtersComponent.SetFilters(_filters);
+    }
 
+    private async Task OnPageChanged(int page)
+    {
+        _page = page;
+
+        await FetchAsync();
+
+        SerializeFiltersToUrl();
+    }
+
+    private async Task FetchAsync()
+    {
         Loading = true;
+        Images = [];
 
         try
         {
-            var requestParameters = JsonSerializer.Serialize(
-                query with { Page = 1 },
-                JsonSerializerOptions.Web);
-
-            var requestUri = $"api/images?requestParameters={Uri.EscapeDataString(requestParameters)}";
-
-            using var response = await HttpClient.GetAsync(requestUri, _cts.Token);
-            var body = await response.Content.ReadAsStringAsync(_cts.Token);
-
-            if (response.IsSuccessStatusCode)
+            while (true)
             {
-                Images = JsonSerializer.Deserialize<GetImagesResponse>(body, JsonSerializerOptions.Web)
-                    ?.Images ?? [];
+                var requestParameters = JsonSerializer.Serialize(BuildQuery(), JsonSerializerOptions.Web);
+                var requestUri = $"api/images?requestParameters={Uri.EscapeDataString(requestParameters)}";
 
+                using var response = await HttpClient.GetAsync(requestUri);
+                var body = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _error = ApiException.FromResponse(response, body);
+                    return;
+                }
+
+                var result = JsonSerializer.Deserialize<GetImagesResponse>(body, JsonSerializerOptions.Web);
+                Images = result?.Images ?? [];
+                _totalResults = result?.TotalResults ?? 0;
                 _error = null;
-            }
-            else
-            {
-                _error = ApiException.FromResponse(response, body);
+
+                if (_page > MaxPage)
+                {
+                    _page = MaxPage;
+                    continue;
+                }
+
+                break;
             }
         }
         catch (HttpRequestException exception)
@@ -103,18 +115,39 @@ public partial class Gallery
         {
             Loading = false;
         }
-
-        SerializeFiltersToUrl(filters);
-        _filtersComponent.SetFilters(filters);
     }
 
-    private void SerializeFiltersToUrl(Filters.FiltersModel filters)
+    private GetImagesQuery BuildQuery()
+    {
+        GetImagesQueryTagsFilter? tagsFilter = null;
+        var tags = _filters.Tags.ToArray();
+        if (tags.Length > 0)
+        {
+            tagsFilter = new GetImagesQueryTagsFilter
+            {
+                Tags = tags,
+                TagsSelectionType = _filters.TagsSelectionType
+            };
+        }
+
+        return new GetImagesQuery
+        {
+            Page = _page,
+            PageSize = _filters.PageSize,
+            OrderBy = _filters.OrderByType,
+            Sort = _filters.SortType,
+            Eras = [.. _filters.Eras],
+            Members = [.. _filters.Members],
+            TagsFilter = tagsFilter
+        };
+    }
+
+    private void SerializeFiltersToUrl()
     {
         var uri = new Uri(NavigationManager.Uri);
-        var query = HttpUtility.ParseQueryString(uri.Query);
-
-        query[FiltersKey] = JsonSerializer.Serialize(filters, JsonSerializerOptions.Web);
-        query[PageKey] = "1";
+        NameValueCollection query = HttpUtility.ParseQueryString(uri.Query);
+        query[FiltersKey] = JsonSerializer.Serialize(_filters, JsonSerializerOptions.Web);
+        query[PageKey] = _page.ToString(CultureInfo.InvariantCulture);
         NavigationManager.NavigateTo($"{uri.GetLeftPart(UriPartial.Path)}?{query}");
     }
 
@@ -136,5 +169,11 @@ public partial class Gallery
         {
             return new Filters.FiltersModel();
         }
+    }
+
+    private int ReadPageFromUrl()
+    {
+        var page = HttpUtility.ParseQueryString(new Uri(NavigationManager.Uri).Query)[PageKey];
+        return int.TryParse(page, CultureInfo.InvariantCulture, out var value) && value >= 1 ? value : 1;
     }
 }

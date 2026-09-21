@@ -6,7 +6,6 @@ public sealed record ApiProblemDetails
     public string? Type { get; init; }
     public string? Title { get; init; }
     public string? Detail { get; init; }
-    public string? ActivityTraceId { get; init; }
-    public string? RequestTraceId { get; init; }
+    public string? TraceId { get; init; }
     public Dictionary<string, string[]>? Errors { get; init; }
 }

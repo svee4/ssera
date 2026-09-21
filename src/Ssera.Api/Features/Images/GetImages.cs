@@ -23,7 +23,7 @@ public static partial class GetImages
         Request requestBase,
         ApiDbContext dbContext,
         CancellationToken token)
-    {
+    {        
         var request = requestBase.RequestParameters;
 
         var query = dbContext.ImageArchive.AsQueryable();

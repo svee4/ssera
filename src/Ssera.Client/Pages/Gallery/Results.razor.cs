@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Ssera.Shared.Images;
+using Ssera.Shared.Images.Filters;
 
 namespace Ssera.Client.Pages.Gallery;
 
@@ -22,8 +23,20 @@ public partial class Results
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Console.WriteLine("invoke masonry stuff");
         await JsRuntime.InvokeVoidAsync("window.updateMasonry");
+    }
+
+    private static List<string> GetTags(GetImagesResponse.Image image)
+    {
+        var tags = new List<string>();
+
+        if (image.Era is { } era)
+        {
+            tags.Add(era.GetDisplayName());
+        }
+
+        tags.AddRange(image.Tags);
+        return tags;
     }
 
     private static string GetDriveThumbnailUrl(string fileId)

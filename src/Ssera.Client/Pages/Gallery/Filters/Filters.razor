@@ -90,5 +90,7 @@
             Style="height: min-content;"
             Disabled="@Loading"
         />
+
+        <p style="@(IsDirty ? "" : "visibility: hidden")">Unapplied changes</p>
     </RadzenStack>
 </RadzenStack>

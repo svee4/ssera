@@ -11,8 +11,22 @@
 
     <SseraError Error="_error" />
 
+    <SseraPagingControls
+        Page="_page"
+        PageChanged="OnPageChanged"
+        PageSize="@_filters.PageSize"
+        TotalResults="_totalResults"
+    />
+
     <Results
         Images="@Images"
         Loading="@Loading"
+    />
+
+    <SseraPagingControls
+        Page="_page"
+        PageChanged="OnPageChanged"
+        PageSize="@_filters.PageSize"
+        TotalResults="_totalResults"
     />
 </RadzenStack>

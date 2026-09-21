@@ -1,27 +1,20 @@
+using Immediate.Validations.Shared;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Reflection;
 
 namespace Ssera.Api.Infra.ExceptionHandling;
 
 public sealed class ExceptionHandlerMiddleware(
-    IServiceProvider serviceProvider,
-    GlobalExceptionHandler globalHandler,
     IProblemDetailsService problemDetailsService,
+    IHostEnvironment environment,
     ILogger<ExceptionHandlerMiddleware> logger) : IExceptionHandler
 {
-    private static readonly MethodInfo _handlerMethod = typeof(ExceptionHandlerMiddleware)
-        .GetMethod($"{nameof(InvokeHandler)}", BindingFlags.NonPublic | BindingFlags.Instance)
-        ?? throw new InvalidOperationException("Method Handle not found");
-
-    private static readonly ConcurrentDictionary<Type, MethodInfo> _typedHandlers = [];
-
-    private readonly IServiceProvider _serviceProvider = serviceProvider;
-    private readonly GlobalExceptionHandler _globalHandler = globalHandler;
     private readonly IProblemDetailsService _problemDetailsService = problemDetailsService;
+    private readonly IHostEnvironment _environment = environment;
     private readonly ILogger<ExceptionHandlerMiddleware> _logger = logger;
+
+    private bool IsDevEnv => _environment.IsDevelopment();
 
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
@@ -46,53 +39,51 @@ public sealed class ExceptionHandlerMiddleware(
     {
         _logger.LogDebug("Handling {Exception}", exception);
 
-        var handler = _typedHandlers.GetOrAdd(
-            exception.GetType(),
-            (type, method) => method.MakeGenericMethod(type),
-            _handlerMethod);
+        ProblemDetails details;
 
-        var problem = await (Task<ProblemDetails>)handler.Invoke(this, [httpContext, exception, cancellationToken])!;
-
-        if (problem.Status is not { } statusCode)
+        if (exception is ValidationException validationException)
         {
-            throw new InvalidOperationException("Exception handler left ProblemDetails in invalid state (no status)");
+            details = new ValidationProblemDetails
+            {
+                Status = 400,
+                Title = "Validation problem occurred",
+                Detail = validationException.Message,
+                Errors = validationException.Errors
+                    .GroupBy(x => x.PropertyName)
+                    .ToDictionary(
+                        x => x.Key,
+                        x => x.Select(y => y.ErrorMessage).ToArray())
+            };
+        }
+        else if (exception is BadHttpRequestException httpRequestException)
+        {
+            details = new ValidationProblemDetails
+            {
+                Status = 400,
+                Title = "Bad request",
+                Detail = httpRequestException.InnerException?.Message ?? httpRequestException.Message
+            };
+        }
+        else
+        {
+            _logger.LogError("Unhandled exception for '{TraceId}': {Exception}", Activity.Current?.Id, exception);
+
+            details = new ProblemDetails
+            {
+                Status = 500,
+                Title = "Unhandled server error",
+                Detail = IsDevEnv ? exception.ToString() : "Unhandled exception"
+            };
         }
 
-        // we want the extensions to contain both "requestTraceId" and "activityTraceId",
-        // as they are two distinct traces.
-        // the problem details service writer unapologetically sets "traceId",
-        // but we fix that up in StartupExtensions.FixProblemDetailsTraces
-
-        if (Activity.Current?.Id is { } activityId)
-        {
-            _ = problem.Extensions.TryAdd("activityTraceId", activityId);
-        }
-
-        _ = problem.Extensions.TryAdd("requestTraceId", httpContext.TraceIdentifier);
-
-        httpContext.Response.StatusCode = statusCode;
-
-        var details = new ProblemDetailsContext
+        var context = new ProblemDetailsContext
         {
             HttpContext = httpContext,
-            ProblemDetails = problem,
+            ProblemDetails = details,
         };
 
-        await _problemDetailsService.WriteAsync(details);
+        httpContext.Response.StatusCode = details.Status ?? StatusCodes.Status500InternalServerError;
+        await _problemDetailsService.WriteAsync(context);
         return true;
-    }
-
-    private async Task<ProblemDetails> InvokeHandler<TException>(
-        HttpContext context,
-        TException exception,
-        CancellationToken token) where TException : Exception
-    {
-        var handler = _serviceProvider.GetService<IProblemDetailsExceptionHandler<TException>>();
-
-        var task = handler is not null
-            ? handler.Handle(context, exception, token)
-            : _globalHandler.Handle(context, exception, token);
-
-        return await task;
     }
 }
