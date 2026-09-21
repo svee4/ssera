@@ -1,6 +1,4 @@
 
-console.log("Loaded masonry.js");
-
 // Based on:
 // https://dev.to/hungle00/build-a-masonry-layout-pinterest-layout-3glp
 // We almost can do this without js because we know the size of the images beforehand,
@@ -26,11 +24,7 @@ const resizeObserver = new ResizeObserver(entries => {
 const trackedElements = new Set();
 
 window.updateMasonry = () => {
-    console.time("updateMasonry");
-
     const liveElements = new Set(document.querySelectorAll(".masonry-element"));
-
-    console.log("Checking elements:", Array.from(liveElements));
 
     for (const liveElement of liveElements) {
         if (!trackedElements.has(liveElement)) {
@@ -46,8 +40,4 @@ window.updateMasonry = () => {
             resizeObserver.unobserve(trackedElement);
         }
     }
-
-    console.log("Tracked elements:", Array.from(trackedElements));
-
-    console.timeEnd("updateMasonry");
 };

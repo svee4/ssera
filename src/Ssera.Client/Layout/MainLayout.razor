@@ -1,7 +1,10 @@
 @inherits LayoutComponentBase
 
 <HeadContent>
-    <RadzenTheme Theme="@_theme" @rendermode="RenderMode.InteractiveWebAssembly" />
+    <RadzenTheme
+        Theme="@_theme"
+        @rendermode="RenderMode.InteractiveWebAssembly"
+    />
 </HeadContent>
 
 <RadzenLayout>
@@ -10,25 +13,26 @@
             Style="height: 100%; padding: 6px;"
             Orientation="Orientation.Horizontal"
             JustifyContent="JustifyContent.SpaceBetween"
-            AlignItems="AlignItems.Center">
-
+            AlignItems="AlignItems.Center"
+        >
             <div></div>
 
             <RadzenStack Orientation="Orientation.Horizontal">
-                <RadzenLink Target="/">Home</RadzenLink>
-                <RadzenLink Target="/events">Events</RadzenLink>
-                <RadzenLink Target="/gallery">Gallery</RadzenLink>
-                <RadzenLink Target="/log">Log</RadzenLink>
+                <RadzenLink Path="/">Home</RadzenLink>
+                <RadzenLink Path="/events">Events</RadzenLink>
+                <RadzenLink Path="/gallery">Gallery</RadzenLink>
+                <RadzenLink Path="/history">History</RadzenLink>
             </RadzenStack>
 
             <div>
-                <RadzenDropDown TValue="string"
-                                Data="Ssera.Client.Infra.ThemeService.Themes"
-                                AllowSelectAll="false"
-                                Value="_theme"
-                                Change="@(v => SetTheme((string)v))"></RadzenDropDown>
+                <RadzenDropDown
+                    TValue="string"
+                    Data="Ssera.Client.Infra.ThemeService.Themes"
+                    AllowSelectAll="false"
+                    Value="_theme"
+                    Change="@(v => SetTheme((string)v))"
+                />
             </div>
-
         </RadzenStack>
     </RadzenHeader>
 

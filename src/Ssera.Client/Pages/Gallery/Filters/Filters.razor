@@ -2,8 +2,10 @@
 @using Ssera.Shared.Data
 @using Ssera.Shared.Images.Filters
 
-<RadzenStack Orientation="Orientation.Horizontal" Wrap="FlexWrap.Wrap">
-
+<RadzenStack
+    Orientation="Orientation.Horizontal"
+    Wrap="FlexWrap.Wrap"
+>
     <SseraFieldset Title="Order by">
         <RadzenStack Orientation="Orientation.Vertical">
             <RadzenDropDown
@@ -22,7 +24,10 @@
         </RadzenStack>
     </SseraFieldset>
 
-    <SseraFieldset Title="Eras" Variant="@_designVariant">
+    <SseraFieldset
+        Title="Eras"
+        Variant="@_designVariant"
+    >
         <SseraMultiSelectCheckBoxList
             Data="@_allEras"
             @bind-Values="@_filters.Eras"
@@ -30,20 +35,25 @@
         />
     </SseraFieldset>
 
-    <SseraFieldset Title="Members" Variant="@_designVariant">
+    <SseraFieldset
+        Title="Members"
+        Variant="@_designVariant"
+    >
         <SseraMultiSelectCheckBoxList
             Data="@_allMembers"
             @bind-Values="@_filters.Members"
             ColumnCount="3"
-         />
+        />
     </SseraFieldset>
 
     <!-- TODO: filtering based on date -->
     <!-- TODO: filtering for only vertical or only horizontal images -->
 
-    <SseraFieldset Title="Tags" Style="">
+    <SseraFieldset
+        Title="Tags"
+        Style=""
+    >
         <RadzenStack Orientation="Orientation.Vertical">
-
             <RadzenDropDown
                 @bind-Value="_filters.TagsSelectionType"
                 Data="@_allTagsSelectionTypes"
@@ -62,12 +72,10 @@
                 AllowSelectAll="true"
                 LoadData="@TagsDropdownLoadData"
             />
-
         </RadzenStack>
     </SseraFieldset>
 
     <RadzenStack Orientation="Orientation.Vertical">
-
         <SseraFieldset Title="Page size">
             <RadzenDropDown
                 Data="@_allPageSizes"
@@ -82,7 +90,5 @@
             Style="height: min-content;"
             Disabled="@Loading"
         />
-
     </RadzenStack>
-
 </RadzenStack>

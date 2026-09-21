@@ -4,6 +4,7 @@ using Immediate.Validations.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Ssera.Api.Data;
+using Ssera.Shared.Events;
 using Ssera.Shared.Events.Filters;
 
 namespace Ssera.Api.Features.Events;
@@ -29,10 +30,7 @@ public static partial class GetEvents
         public int PageSize { get; init; }
     }
 
-    public sealed record ResponseModel(List<EventModel> Results, DateTime? LastUpdate, int TotalResults);
-    public sealed record EventModel(DateTime Date, EventType Type, string? Title, string? Link);
-
-    private static async ValueTask<ResponseModel> HandleAsync(
+    private static async ValueTask<GetEventsResponse> HandleAsync(
         Query requestQuery,
         ApiDbContext dbContext,
         CancellationToken token)
@@ -74,7 +72,7 @@ public static partial class GetEvents
         var events = skips > count
             ? []
             : await query
-                .Select(m => new EventModel(
+                .Select(m => new Event(
                     m.Date,
                     (EventType)m.Type,
                     m.Title,
@@ -88,7 +86,7 @@ public static partial class GetEvents
             .OrderByDescending(date => date)
             .FirstOrDefaultAsync(token);
 
-        return new ResponseModel(
+        return new GetEventsResponse(
             events,
             lastUpdate == default ? null : DateTime.SpecifyKind(lastUpdate, DateTimeKind.Utc),
             count

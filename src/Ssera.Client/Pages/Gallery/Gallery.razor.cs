@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 using Ssera.Client.Infra;
 using Ssera.Shared.Images;
-using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Text.Json;
 using System.Web;
 
@@ -10,8 +9,11 @@ namespace Ssera.Client.Pages.Gallery;
 
 public partial class Gallery
 {
+    private const string FiltersKey = "filters";
+    private const string PageKey = "page";
+
     [Inject]
-    private ImageApiService ImageApiService { get; set; } = null!;
+    private HttpClient HttpClient { get; set; } = null!;
 
     [Inject]
     private NavigationManager NavigationManager { get; set; } = null!;
@@ -22,6 +24,7 @@ public partial class Gallery
     private bool Loading { get; set; } = true;
 
     private CancellationTokenSource _cts = new();
+    private ApiException? _error;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -44,6 +47,7 @@ public partial class Gallery
     private async Task OnFiltersChanged(Filters.FiltersModel filters)
     {
         GetImagesQueryTagsFilter? tagsFilter = null;
+
         {
             var tags = filters.Tags.ToArray();
             if (tags.Length > 0)
@@ -56,9 +60,8 @@ public partial class Gallery
             }
         }
 
-        var request = new GetImagesQuery
+        var query = new GetImagesQuery
         {
-            Page = 1,
             PageSize = filters.PageSize,
             OrderBy = filters.OrderByType,
             Sort = filters.SortType,
@@ -68,61 +71,68 @@ public partial class Gallery
         };
 
         Loading = true;
-        Images = [];
 
-        var result = await ImageApiService.GetImagesAsync(request, _cts.Token);
+        try
+        {
+            var requestParameters = JsonSerializer.Serialize(
+                query with { Page = 1 },
+                JsonSerializerOptions.Web);
 
-        Images = result.Images;
-        Loading = false;
+            var requestUri = $"api/images?requestParameters={Uri.EscapeDataString(requestParameters)}";
 
-        // i am not fucking around with desynced state
+            using var response = await HttpClient.GetAsync(requestUri, _cts.Token);
+            var body = await response.Content.ReadAsStringAsync(_cts.Token);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Images = JsonSerializer.Deserialize<GetImagesResponse>(body, JsonSerializerOptions.Web)
+                    ?.Images ?? [];
+
+                _error = null;
+            }
+            else
+            {
+                _error = ApiException.FromResponse(response, body);
+            }
+        }
+        catch (HttpRequestException exception)
+        {
+            _error = new ApiException(null, null, null, exception);
+        }
+        finally
+        {
+            Loading = false;
+        }
+
         SerializeFiltersToUrl(filters);
-        _filtersComponent.SetFilters(DeserializeFiltersFromUrl());
+        _filtersComponent.SetFilters(filters);
     }
 
     private void SerializeFiltersToUrl(Filters.FiltersModel filters)
     {
-        var serializableRequest = filters with
-        {
-            // Tags are arbitrary user input - they are from the drive folders.
-            // We need to encode them to prevent issues.
-            Tags = filters.Tags.Select(s => HttpUtility.UrlEncode(s))
-        };
-
-        var json = JsonSerializer.Serialize(serializableRequest);
-
         var uri = new Uri(NavigationManager.Uri);
-        var newUri = $"{uri.GetLeftPart(UriPartial.Path)}?filters={json}";
-        NavigationManager.NavigateTo(newUri);
+        var query = HttpUtility.ParseQueryString(uri.Query);
+
+        query[FiltersKey] = JsonSerializer.Serialize(filters, JsonSerializerOptions.Web);
+        query[PageKey] = "1";
+        NavigationManager.NavigateTo($"{uri.GetLeftPart(UriPartial.Path)}?{query}");
     }
 
     private Filters.FiltersModel DeserializeFiltersFromUrl()
     {
-        var uri = new Uri(NavigationManager.Uri);
-        var query = HttpUtility.ParseQueryString(uri.Query);
-        var filtersJson = query.Get("filters");
+        var json = HttpUtility.ParseQueryString(new Uri(NavigationManager.Uri).Query)[FiltersKey];
 
-        if (string.IsNullOrWhiteSpace(filtersJson))
+        if (string.IsNullOrWhiteSpace(json))
         {
             return new Filters.FiltersModel();
         }
+
         try
         {
-            var deserialized = JsonSerializer.Deserialize<Filters.FiltersModel>(filtersJson);
-            if (deserialized is null)
-            {
-                return new Filters.FiltersModel();
-            }
-
-            // Decode tags
-            deserialized = deserialized with
-            {
-                Tags = deserialized.Tags.Select(s => HttpUtility.UrlDecode(s))
-            };
-
-            return deserialized;
+            return JsonSerializer.Deserialize<Filters.FiltersModel>(json, JsonSerializerOptions.Web)
+                ?? new Filters.FiltersModel();
         }
-        catch
+        catch (JsonException)
         {
             return new Filters.FiltersModel();
         }

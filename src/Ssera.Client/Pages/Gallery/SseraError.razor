@@ -1,0 +1,21 @@
+@using Ssera.Client.Infra
+
+@if (Error is not null)
+{
+    <div>
+        <p>Error: <span>@StatusText</span> <span>@Message</span></p>
+        <p>Request trace id: <span>@Error.Problem?.RequestTraceId</span></p>
+        <p>Activity trace id: <span>@Error.Problem?.ActivityTraceId</span></p>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public ApiException? Error { get; set; }
+
+    private string StatusText => Error?.Status is { } status ? $"({(int)status})" : "";
+
+    private string Message => Error?.Problem is { } problem
+        ? $"{problem.Title}: {problem.Detail}"
+        : Error?.Message ?? "";
+}

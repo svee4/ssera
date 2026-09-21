@@ -1,0 +1,8 @@
+.paging {
+    display: flex;
+    justify-content: space-between;
+}
+
+.paging-controls {
+    display: flex;
+}

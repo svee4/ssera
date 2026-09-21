@@ -39,6 +39,15 @@ Le Sserafim archive helper: an ASP.NET Core 9 API plus a SvelteKit SPA that inge
 - Newer components use Svelte 5 runes (`$state`, `$props`, `$bindable`), but `+layout.svelte` still uses legacy `<slot>` — mixed styles.
 - Prettier settings: tabs, double quotes, trailing commas, print width 100. No ESLint.
 
+### Razor markup formatting (`src/Ssera.Client/**/*.razor`)
+
+- 4 spaces per level, spaces only, no tabs.
+- Elements with 0–1 attributes and short content stay on one line.
+- Elements with 2+ attributes are exploded: tag name alone on its line, one attribute per line indented one level deeper than the tag, `>` / `/>` on its own line back at the tag's indentation, text content one level deeper, closing tag at the tag's indentation.
+- Razor directives (`@bind`, `@bind:after`, `@onclick`, `@key`, `@ref`, ...) count as attributes.
+- Blank line between sibling elements when either sibling is exploded.
+- Literal `<` / `>` in rendered text are written `&lt;` / `&gt;`.
+
 ## Deploy
 
 - `.github/workflows/docker-build-and-push.yml` is manual (`workflow_dispatch`) and only builds/pushes `ghcr.io/svee4/ssera.api` and `.client`; CI runs no tests or checks.

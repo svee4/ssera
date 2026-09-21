@@ -26,6 +26,7 @@ public enum Era
     PerfectNight,
     Easy,
     Crazy,
+    Hot,
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<TagsFilterType>))]
@@ -68,6 +69,7 @@ public static class ImagesFiltersExtensions
             Era.PerfectNight => "Perfect Night",
             Era.Easy => "Easy",
             Era.Crazy => "Crazy",
+            Era.Hot => "Hot",
             _ => throw new UnreachableException($"Unknown {nameof(Era)} value '{value}'")
         };
 

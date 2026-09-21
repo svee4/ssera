@@ -1,4 +1,4 @@
-@page "/"
+@page "/gallery"
 
 <PageTitle>Gallery</PageTitle>
 
@@ -9,5 +9,10 @@
         Loading="Loading"
     />
 
-    <Results Images="@Images" Loading="@Loading" />
+    <SseraError Error="_error" />
+
+    <Results
+        Images="@Images"
+        Loading="@Loading"
+    />
 </RadzenStack>

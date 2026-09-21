@@ -1,0 +1,40 @@
+<div class="paging">
+    <div class="paging-controls">
+        <button
+            type="button"
+            title="Previous page"
+            aria-label="Previous page"
+            style="width: 4ch"
+            disabled="@(Page - 1 < 1)"
+            @onclick="() => SetPage(Page - 1)"
+        >
+            &lt;
+        </button>
+
+        <input
+            type="number"
+            inputmode="numeric"
+            min="1"
+            max="@MaxPage"
+            title="Choose page"
+            aria-label="Choose page"
+            style="width: 8ch"
+            @key="_inputRevision"
+            @bind="_inputValue"
+            @bind:after="ApplyInput"
+        />
+
+        <button
+            type="button"
+            title="Next page"
+            aria-label="Next page"
+            style="width: 4ch"
+            disabled="@(Page + 1 > MaxPage)"
+            @onclick="() => SetPage(Page + 1)"
+        >
+            &gt;
+        </button>
+    </div>
+
+    <p>Showing @Start - @End of @TotalResults results</p>
+</div>

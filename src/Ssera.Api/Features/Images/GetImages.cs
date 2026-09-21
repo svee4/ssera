@@ -114,6 +114,7 @@ public static partial class GetImages
             Era.PerfectNight => ImageArchive.TopLevelKind.PerfectNight,
             Era.Easy => ImageArchive.TopLevelKind.Easy,
             Era.Crazy => ImageArchive.TopLevelKind.Crazy,
+            Era.Hot => ImageArchive.TopLevelKind.Hot,
             _ => throw new UnreachableException()
         };
 
@@ -126,6 +127,7 @@ public static partial class GetImages
             ImageArchive.TopLevelKind.PerfectNight => Era.PerfectNight,
             ImageArchive.TopLevelKind.Easy => Era.Easy,
             ImageArchive.TopLevelKind.Crazy => Era.Crazy,
+            ImageArchive.TopLevelKind.Hot => Era.Hot,
             _ => null
         };
 }
